@@ -30,13 +30,17 @@ public class HandJob : MonoBehaviour
                     Collider2D collider2d = player.GetComponent<Collider2D>();
                     if (collider2d != null && collider2d.OverlapPoint(mouseWorldPosition))
                     {
-                        PlayerStatus.instance.love();
+                        PlayerStatusStr.instance.love();
+                        PlayerStatusAgi.instance.love();
+                        PlayerStatusDex.instance.love();
                         player.GetComponent<DragObject>().enabled = false;
                     }
                 }
                 else if (Input.GetMouseButtonUp(0))
                 {
-                    PlayerStatus.instance.stopLove();
+                    PlayerStatusStr.instance.stopLove();
+                    PlayerStatusAgi.instance.stopLove();
+                    PlayerStatusDex.instance.stopLove();
                     player.GetComponent<DragObject>().enabled = true;
                 }
             }

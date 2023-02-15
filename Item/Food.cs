@@ -20,7 +20,9 @@ public class Food : MonoBehaviour
     IEnumerator eat()
     {
         yield return new WaitForSeconds(2f);
-        PlayerStatus.instance.currentFood += food;
+        PlayerStatusStr.instance.currentFood += food;
+        PlayerStatusAgi.instance.currentFood += food;
+        PlayerStatusDex.instance.currentFood += food;
         animator.SetTrigger("Death");
         Destroy(gameObject, 1f);
     }

@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
-public class PlayerStatus : MonoBehaviour
+public class PlayerStatusStr : MonoBehaviour
 {
     [Header("PictureStatus")]
     public GameObject zzzUI;
@@ -30,18 +30,24 @@ public class PlayerStatus : MonoBehaviour
     public float maxFood = 100;
     public float currentFood;
     public float metabolic = 20;
-    public float damage;
-    public float attackSpeed;
-    public float defense;
+
+    [Header("TimeCooldown")]
     public float knockback = 1;
     public float deathCooldown = 60;
     public float timepoopoo;
-    public float stoppingDistance;
+    public float stoppingDistance = 0.5f;
     public float timetosick;
+    public float chackDistance = 4;
 
     [Header("Status")]
+    public float damage;
+    public float attackSpeed;
+    public float defense;
+    public float MaxStr;
     public float strength;
+    public float MaxAgi;
     public float agility;
+    public float Dex;
     public float dexterity;
 
     [Header("ExpStatus")]
@@ -51,7 +57,7 @@ public class PlayerStatus : MonoBehaviour
 
     private Animator animator;
 
-    public static PlayerStatus instance;
+    public static PlayerStatusStr instance;
     private Transform target;
 
     private Coroutine Nursing;
@@ -75,7 +81,6 @@ public class PlayerStatus : MonoBehaviour
         dexterity = Random.Range(4, 11);
         timepoopoo = Random.Range(150, 300);
         timetosick = Random.Range(300, 800);
-
     }
     void Update()
     {
@@ -115,6 +120,27 @@ public class PlayerStatus : MonoBehaviour
                 waitTimer = 0.0f;
             }
         }
+        //อาหารเสริม
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, chackDistance);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.CompareTag("AddFood"))
+            {
+                target = hitCollider.transform;
+                float distance = Vector2.Distance(transform.position, target.position);
+                if (distance > stoppingDistance)
+                {
+                    animator.SetBool("Run", true);
+                    transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
+                }
+                if (distance <= stoppingDistance)
+                {
+                    StartCoroutine(Eat());
+                    animator.SetBool("Run", false);
+                    animator.SetTrigger("Eat");
+                }
+            }
+        }
         //Hungy
 
         if (currentFood >= 50)
@@ -133,19 +159,24 @@ public class PlayerStatus : MonoBehaviour
         {
             stomachUI.SetActive(true);
             stop = true;
-            var target = GameObject.FindGameObjectWithTag("Food").transform;
-            if (target == null) { return; } 
-            float distance = Vector2.Distance(transform.position, target.position);
-            if (distance > stoppingDistance)
+            foreach (var hitCollider in hitColliders)
             {
-                animator.SetBool("Run", true);
-                transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
-            }
-            if (distance <= stoppingDistance)
-            {
-                StartCoroutine(Eat());
-                animator.SetBool("Run", false);
-                animator.SetTrigger("Eat");
+                if (hitCollider.CompareTag("Food"))
+                {
+                    target = hitCollider.transform;
+                    float distance = Vector2.Distance(transform.position, target.position);
+                    if (distance > stoppingDistance)
+                    {
+                        animator.SetBool("Run", true);
+                        transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
+                    }
+                    if (distance <= stoppingDistance)
+                    {
+                        StartCoroutine(Eat());
+                        animator.SetBool("Run", false);
+                        animator.SetTrigger("Eat");
+                    }
+                }
             }
         }
         //Tired
@@ -180,19 +211,29 @@ public class PlayerStatus : MonoBehaviour
             sick.SetActive(true);
             stop = true;
             deathCooldown -= Time.deltaTime;
-            var target = GameObject.FindGameObjectWithTag("Capsule").transform;
-            if (target == null) { return; }
-            float distance = Vector2.Distance(transform.position, target.position);
-            if (distance > stoppingDistance)
+            if (currentFood < 30)
             {
-                animator.SetBool("Run", true);
-                transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
-            }
-            if (distance <= stoppingDistance)
-            {
-                StartCoroutine(Eat());
-                animator.SetBool("Run", false);
-                animator.SetTrigger("Eat");
+                stomachUI.SetActive(true);
+                stop = true;
+                foreach (var hitCollider in hitColliders)
+                {
+                    if (hitCollider.CompareTag("Capsule"))
+                    {
+                        target = hitCollider.transform;
+                        float distance = Vector2.Distance(transform.position, target.position);
+                        if (distance > stoppingDistance)
+                        {
+                            animator.SetBool("Run", true);
+                            transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
+                        }
+                        if (distance <= stoppingDistance)
+                        {
+                            StartCoroutine(Eat());
+                            animator.SetBool("Run", false);
+                            animator.SetTrigger("Eat");
+                        }
+                    }
+                }
             }
         }
         if (timetosick > 0)
@@ -207,6 +248,21 @@ public class PlayerStatus : MonoBehaviour
             StartCoroutine(DeathCharacter());
         }
 
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, stoppingDistance);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, chackDistance);
+
+        Gizmos.color = Color.blue;
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, chackDistance);
+
+        foreach (Collider2D collider in colliders)
+        {
+            Gizmos.DrawWireSphere(collider.transform.position, 0.5f);
+        }
     }
 
     //เข้าห้องแล้วเกิดอะไร
@@ -401,7 +457,7 @@ public class PlayerStatus : MonoBehaviour
     public IEnumerator DeathCharacter()
     {
         yield return new WaitForSeconds(1);
-        GetComponent<PlayerStatus>().enabled = false;
+        GetComponent<PlayerStatusAgi>().enabled = false;
         Destroy(gameObject, 5);
     }
 
