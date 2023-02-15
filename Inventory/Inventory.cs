@@ -42,14 +42,12 @@ public class Inventory : MonoBehaviour
     }
     public void Remove(Item item)
     {
-        Debug.Log("Remove item");
         if (itemCounts.ContainsKey(item.name))
         {
             itemCounts[item.name] -= 1;
 
             if (itemCounts[item.name] <= 0)
             {
-                Debug.Log("delete item");
                 items.Remove(item);
                 itemCounts.Remove(item.name);
             }

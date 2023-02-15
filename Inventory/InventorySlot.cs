@@ -8,9 +8,11 @@ public class InventorySlot : MonoBehaviour
     public Image icon;
     public Text itemCountText;
     public int itemCount;
-    public GameObject itemFood;
+    public GameObject itemFoodPrefab;
     public Item item;
     public static InventorySlot instance;
+
+    private GameObject itemFood;
 
     public void Awake()
     {
@@ -20,7 +22,7 @@ public class InventorySlot : MonoBehaviour
     public void AddItem(Item newItem)
     {
         item = newItem;
-        itemFood = item.Food;
+        itemFoodPrefab = item.Food;
         icon.sprite = item.icon;
         icon.enabled = true;
         itemCountText.enabled = true;
@@ -43,6 +45,27 @@ public class InventorySlot : MonoBehaviour
     public void RemoveItemformInventory()
     {
         Inventory.instance.Remove(item);
+    }
+
+    public void UseItem()
+    {
+ 
+       Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+       itemFood = Instantiate(itemFoodPrefab, mousePos, Quaternion.identity);
+       itemFood.transform.position = new Vector3(mousePos.x, mousePos.y, 0);
+       Inventory.instance.itemCounts[item.name]--;
+       itemCount = Inventory.instance.itemCounts[item.name];
+
+       if (itemCount <= 0)
+       {
+           Inventory.instance.Remove(item);
+       }
+       else
+       {
+           UpdateItemCountText();
+       }
+        
+
     }
 
     public void UpdateItemCountText()

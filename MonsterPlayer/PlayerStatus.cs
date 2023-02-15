@@ -134,7 +134,7 @@ public class PlayerStatus : MonoBehaviour
             stomachUI.SetActive(true);
             stop = true;
             var target = GameObject.FindGameObjectWithTag("Food").transform;
-            if (target == null) { } 
+            if (target == null) { return; } 
             float distance = Vector2.Distance(transform.position, target.position);
             if (distance > stoppingDistance)
             {
@@ -181,7 +181,7 @@ public class PlayerStatus : MonoBehaviour
             stop = true;
             deathCooldown -= Time.deltaTime;
             var target = GameObject.FindGameObjectWithTag("Capsule").transform;
-            if (target == null) { }
+            if (target == null) { return; }
             float distance = Vector2.Distance(transform.position, target.position);
             if (distance > stoppingDistance)
             {
