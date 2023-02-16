@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
-public class PlayerStatusStr : MonoBehaviour
+public class PlayerStatus : MonoBehaviour
 {
     [Header("PictureStatus")]
     public GameObject zzzUI;
@@ -40,14 +40,14 @@ public class PlayerStatusStr : MonoBehaviour
     public float chackDistance = 4;
 
     [Header("Status")]
-    public float damage;
-    public float attackSpeed;
-    public float defense;
     public float MaxStr;
+    public float MinStr;
     public float strength;
     public float MaxAgi;
+    public float MinAgi;
     public float agility;
-    public float Dex;
+    public float MaxDex;
+    public float MinDex;
     public float dexterity;
 
     [Header("ExpStatus")]
@@ -55,9 +55,16 @@ public class PlayerStatusStr : MonoBehaviour
     public int currentExperience = 0;
     public int experienceToNextLevel = 250;
 
+    [Header("Attack")]
+    public float damage;
+    public float attackSpeed;
+    public float defense;
+    public float attackRange;
+    public LayerMask enemyLayer;
+
     private Animator animator;
 
-    public static PlayerStatusStr instance;
+    public static PlayerStatus instance;
     private Transform target;
 
     private Coroutine Nursing;
@@ -73,7 +80,6 @@ public class PlayerStatusStr : MonoBehaviour
 
     private void Start()
     {
-        currentHp = maxHp;
         currentFood = maxFood;
         animator = GetComponent<Animator>();
         strength = Random.Range(4, 11);
@@ -81,12 +87,14 @@ public class PlayerStatusStr : MonoBehaviour
         dexterity = Random.Range(4, 11);
         timepoopoo = Random.Range(150, 300);
         timetosick = Random.Range(300, 800);
+        maxHp = strength * 10;
+        currentHp = maxHp;
     }
     void Update()
     {
         maxHp = strength * 10;
         damage = strength;
-        attackSpeed = agility;
+        attackSpeed = agility *0.1f;
         defense = dexterity;
 
 
@@ -94,7 +102,7 @@ public class PlayerStatusStr : MonoBehaviour
         if (!stop)
         {
             walkTimer += Time.deltaTime;
-            transform.position += (Vector3)moveDirection * speed * Time.deltaTime;
+            transform.position += (Vector3)moveDirection * speed * Time.deltaTime * attackSpeed;
 
             animator.SetBool("Run", true);
             if (moveDirection.x > 0)
@@ -259,10 +267,10 @@ public class PlayerStatusStr : MonoBehaviour
         Gizmos.color = Color.blue;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, chackDistance);
 
-        foreach (Collider2D collider in colliders)
+        /*foreach (Collider2D collider in colliders)
         {
             Gizmos.DrawWireSphere(collider.transform.position, 0.5f);
-        }
+        }*/
     }
 
     //เข้าห้องแล้วเกิดอะไร
@@ -289,19 +297,32 @@ public class PlayerStatusStr : MonoBehaviour
         }
         if (collider.gameObject.layer == LayerMask.NameToLayer("Bathroom"))
         {
-            Debug.Log("เข้ามาขี้");
             if (timepoopoo < 30)
             {
                 Bathroom = StartCoroutine(pootime()); 
             }
-            else StopCoroutine(Bathroom);
         }
-        if (collider.gameObject.tag == "Enemy")
+
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Arena"))
         {
-            Attack();
-            Vector2 direction = (collider.transform.position - transform.position).normalized * speed;
-            collider.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback), ForceMode2D.Impulse);
-            collider.gameObject.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
+            GetComponent<DragObject>().enabled = false;
+            if (collider.gameObject.CompareTag("Enemy"))
+            {
+                target = collider.gameObject.transform;
+                float distance = Vector2.Distance(transform.position, target.position);
+                Vector2 direction = (collider.transform.position - transform.position).normalized * speed;
+                if (distance > stoppingDistance)
+                {
+                    animator.SetBool("Run", true);
+                    transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
+                }
+                if (distance <= stoppingDistance)
+                {
+                    Attack();
+                    collider.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback), ForceMode2D.Impulse);
+                    collider.gameObject.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
+                }
+            }
         }
 
     }
@@ -331,13 +352,15 @@ public class PlayerStatusStr : MonoBehaviour
     //ห้องพยาบาล
     private IEnumerator IncreaseNursingStats()
     {
+        yield return new WaitForSeconds(2);
         while (currentFood >= metabolic)
         {
-            yield return new WaitForSeconds(2);
-            currentHp += 10f;
+            currentHp += 10;
             currentFood -= metabolic;
             if (currentHp > maxHp) currentHp = maxHp;
             yield return new WaitForSeconds(1f);
+            if (currentHp == maxHp) break;
+
         }
     }
     //เข้ายิม
@@ -346,11 +369,14 @@ public class PlayerStatusStr : MonoBehaviour
         yield return new WaitForSeconds(2);
         while (currentFood >= metabolic)
         {
-            strength += 1f;
+            strength += 1;
+            agility -= 1;
             currentFood -= metabolic;
-            timepoopoo -= 2f;
-            yield return new WaitForSeconds(1f);
+            timepoopoo -= 2;
             IncreaseExperience(10);
+            if (strength >= MaxStr) strength = MaxStr;
+            if (agility <= MinAgi) agility= MinAgi; 
+            yield return new WaitForSeconds(1f);
         }
     }
     //สนามเด็กเล่น
@@ -359,11 +385,14 @@ public class PlayerStatusStr : MonoBehaviour
         yield return new WaitForSeconds(2);
         while (currentFood >= metabolic)
         {
-            agility += 1f;
+            agility += 1;
+            dexterity -= 1;
             currentFood -= metabolic;
-            timepoopoo -= 2f;
-            yield return new WaitForSeconds(1f);
+            timepoopoo -= 2;
             IncreaseExperience(10);
+            if (agility >= MaxAgi) agility = MaxAgi;
+            if (dexterity <= MinDex) dexterity = MinDex;
+            yield return new WaitForSeconds(1f);
         }
     }
     //ห้องซ่อมมวย
@@ -372,11 +401,14 @@ public class PlayerStatusStr : MonoBehaviour
         yield return new WaitForSeconds(2);
         while (currentFood >= metabolic)
         {
-            dexterity += 1f;
+            dexterity += 1;
+            strength -= 1;
             currentFood -= metabolic;
-            timepoopoo -= 2f;
-            yield return new WaitForSeconds(1f);
+            timepoopoo -= 2;
             IncreaseExperience(10);
+            if (dexterity >= MaxDex) dexterity = MaxDex;
+            if (strength <= MinStr) strength = MinStr;
+            yield return new WaitForSeconds(1f);
         }
     }
     //ระบบเลเวล
@@ -388,19 +420,11 @@ public class PlayerStatusStr : MonoBehaviour
             level++;
             currentExperience -= experienceToNextLevel;
             experienceToNextLevel = (int)(experienceToNextLevel * 1.5f);
+            maxFood = maxFood * 1.5f;
+            currentHp = maxHp;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Enemy")
-        {
-            Attack();
-            Vector2 direction = (collision.transform.position - transform.position).normalized;
-            collision.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback), ForceMode2D.Impulse);
-            collision.gameObject.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
-        }
-    }
     public void TakeDamage(float damage, Vector2 direction)
     {
         float finalDamage = damage / 2f * (1 - defense / 200f);
@@ -419,13 +443,11 @@ public class PlayerStatusStr : MonoBehaviour
     }
     private void Attack()
     {
-        //animator.SetTrigger("Attack");
-        GameObject[] hitEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in hitEnemies)
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange, enemyLayer);
+        foreach (Collider2D enemy in hitEnemies)
         {
             Vector2 direction = (enemy.transform.position - transform.position).normalized;
             enemy.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
-
         }
     }
     public void StopWalking()
@@ -457,7 +479,7 @@ public class PlayerStatusStr : MonoBehaviour
     public IEnumerator DeathCharacter()
     {
         yield return new WaitForSeconds(1);
-        GetComponent<PlayerStatusAgi>().enabled = false;
+        GetComponent<PlayerStatus>().enabled = false;
         Destroy(gameObject, 5);
     }
 

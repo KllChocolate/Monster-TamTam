@@ -52,7 +52,6 @@ public class WaveSpawner : MonoBehaviour
             {
                 pushToStart.SetActive(true);
                 WaveCompleted();
-                
             }
             else
             {

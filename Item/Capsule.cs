@@ -24,9 +24,7 @@ public class Capsule : MonoBehaviour
     IEnumerator eat()
     {
         yield return new WaitForSeconds(2f);
-        PlayerStatusStr.instance.timetosick += capsule;
-        PlayerStatusAgi.instance.timetosick += capsule;
-        PlayerStatusDex.instance.timetosick += capsule;
+        PlayerStatus.instance.timetosick += capsule;
         animator.SetTrigger("Death");
         Destroy(gameObject, 1f);
     }

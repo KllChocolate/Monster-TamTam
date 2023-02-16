@@ -54,9 +54,7 @@ public class EnemyStatus : MonoBehaviour
             Attack();
             Vector2 direction = (collision.transform.position - transform.position).normalized;
             collision.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback), ForceMode2D.Impulse);
-            collision.gameObject.GetComponent<PlayerStatusStr>().TakeDamage(damage, direction);
-            collision.gameObject.GetComponent<PlayerStatusAgi>().TakeDamage(damage, direction);
-            collision.gameObject.GetComponent<PlayerStatusDex>().TakeDamage(damage, direction);
+            collision.gameObject.GetComponent<PlayerStatus>().TakeDamage(damage, direction);
         }
     }
     public void TakeDamage(float damage, Vector2 direction)
@@ -83,9 +81,7 @@ public class EnemyStatus : MonoBehaviour
         foreach (GameObject enemy in hitEnemies)
         {
             Vector2 direction = (enemy.transform.position - transform.position).normalized;
-            enemy.GetComponent<PlayerStatusStr>().TakeDamage(damage, direction);
-            enemy.GetComponent<PlayerStatusAgi>().TakeDamage(damage, direction);
-            enemy.GetComponent<PlayerStatusDex>().TakeDamage(damage, direction);
+            enemy.GetComponent<PlayerStatus>().TakeDamage(damage, direction);
 
         }
     }

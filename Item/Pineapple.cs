@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Food : MonoBehaviour
+public class Pineapple : MonoBehaviour
 {
     Animator animator;
-    public float food;
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -20,7 +19,7 @@ public class Food : MonoBehaviour
     IEnumerator eat()
     {
         yield return new WaitForSeconds(2f);
-        PlayerStatus.instance.currentFood += food;
+        PlayerStatus.instance.MaxDex += 1;
         animator.SetTrigger("Death");
         Destroy(gameObject, 1f);
     }

@@ -15,10 +15,6 @@ public class MoneyTotal : MonoBehaviour
     {
         instance = this;
     }
-    void Start()
-    {
-
-    }
 
     private void Update()
     {
@@ -28,7 +24,6 @@ public class MoneyTotal : MonoBehaviour
     public void AddMoney(int amount)
     {
         money += amount;
-
     }
 
     public void SpendMoney(int amount)
