@@ -32,7 +32,6 @@ public class PlayerStatus : MonoBehaviour
     public float metabolic = 20;
 
     [Header("TimeCooldown")]
-    public float knockback = 1;
     public float deathCooldown = 60;
     public float timepoopoo;
     public float stoppingDistance = 0.5f;
@@ -59,8 +58,7 @@ public class PlayerStatus : MonoBehaviour
     public float damage;
     public float attackSpeed;
     public float defense;
-    public float attackRange;
-    public LayerMask enemyLayer;
+
 
     private Animator animator;
 
@@ -89,12 +87,15 @@ public class PlayerStatus : MonoBehaviour
         timetosick = Random.Range(300, 800);
         maxHp = strength * 10;
         currentHp = maxHp;
+        damage = strength;
+        attackSpeed = agility * 0.1f;
+        defense = dexterity;
     }
     void Update()
     {
         maxHp = strength * 10;
         damage = strength;
-        attackSpeed = agility *0.1f;
+        attackSpeed = agility * 0.1f;
         defense = dexterity;
 
 
@@ -102,7 +103,8 @@ public class PlayerStatus : MonoBehaviour
         if (!stop)
         {
             walkTimer += Time.deltaTime;
-            transform.position += (Vector3)moveDirection * speed * Time.deltaTime * attackSpeed;
+            moveDirection = Random.insideUnitCircle;
+            transform.position += (Vector3)moveDirection * speed * Time.deltaTime;
 
             animator.SetBool("Run", true);
             if (moveDirection.x > 0)
@@ -255,7 +257,6 @@ public class PlayerStatus : MonoBehaviour
             animator.SetTrigger("Death");
             StartCoroutine(DeathCharacter());
         }
-
     }
     private void OnDrawGizmosSelected()
     {
@@ -303,29 +304,8 @@ public class PlayerStatus : MonoBehaviour
             }
         }
 
-        if (collider.gameObject.layer == LayerMask.NameToLayer("Arena"))
-        {
-            GetComponent<DragObject>().enabled = false;
-            if (collider.gameObject.CompareTag("Enemy"))
-            {
-                target = collider.gameObject.transform;
-                float distance = Vector2.Distance(transform.position, target.position);
-                Vector2 direction = (collider.transform.position - transform.position).normalized * speed;
-                if (distance > stoppingDistance)
-                {
-                    animator.SetBool("Run", true);
-                    transform.position = Vector2.MoveTowards(transform.position, target.position, speed * Time.deltaTime * 0.5f);
-                }
-                if (distance <= stoppingDistance)
-                {
-                    Attack();
-                    collider.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(knockback, knockback), ForceMode2D.Impulse);
-                    collider.gameObject.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
-                }
-            }
-        }
-
     }
+
     private void OnTriggerExit2D(Collider2D collider)
     {
         if (collider.gameObject.layer == LayerMask.NameToLayer("Nursing"))
@@ -347,10 +327,22 @@ public class PlayerStatus : MonoBehaviour
         {
             StopCoroutine(Boxing);
         }
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Arena"))
+        {
+            GetComponent<PlayerAttack>().enabled = false;
+            currentHp = PlayerAttack.instance.currentHp;
+        }
 
     }
-    //ห้องพยาบาล
-    private IEnumerator IncreaseNursingStats()
+    private void OnTriggerStay2D(Collider2D collider)
+    {
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Arena"))
+        {
+            GetComponent<PlayerAttack>().enabled = true;
+        }
+    }
+        //ห้องพยาบาล
+        private IEnumerator IncreaseNursingStats()
     {
         yield return new WaitForSeconds(2);
         while (currentFood >= metabolic)
@@ -425,31 +417,7 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float damage, Vector2 direction)
-    {
-        float finalDamage = damage / 2f * (1 - defense / 200f);
-        currentHp -= finalDamage;
-        if (currentHp <= 0)
-        {
-            animator.SetTrigger("Death");
-        }
-        else
-        {
-            Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            rb.AddForce(direction * knockback, ForceMode2D.Impulse);
-            animator.SetTrigger("Hit");
-        }
 
-    }
-    private void Attack()
-    {
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange, enemyLayer);
-        foreach (Collider2D enemy in hitEnemies)
-        {
-            Vector2 direction = (enemy.transform.position - transform.position).normalized;
-            enemy.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
-        }
-    }
     public void StopWalking()
     {
         stop = true;
