@@ -5,25 +5,45 @@ using UnityEngine.UI;
 
 public class ToggleController : MonoBehaviour
 {
-    public Toggle[] toggleButtons;
+    public static ToggleController instance;
+    public List<Toggle> toggleButtons = new List<Toggle>();
 
-    private void Start()
+    private void Awake()
     {
-        for (int i = 1; i < toggleButtons.Length; i++)
+        instance = this; 
+    }
+    public void OnEnable()
+    {
+        // ตั้งค่า isOn ของ Toggle ให้ตรงกับจำนวน player ทั้งหมดในฉาก
+        int numPlayers = GameObject.FindGameObjectsWithTag("Player").Length;
+        for (int i = 0; i < toggleButtons.Count; i++)
         {
-            toggleButtons[i].isOn = false;
+            toggleButtons[i].isOn = (i < numPlayers);
         }
     }
 
-    public void OnToggleValueChanged(Toggle toggle)
+    public void UpdateToggles()
     {
-        if (toggle.isOn)
+        int count = 0; // ตัวนับจำนวน toggle ที่เปิดอยู่
+        foreach (Toggle button in toggleButtons)
         {
-            for (int i = 0; i < toggleButtons.Length; i++)
+            if (button.isOn)
             {
-                if (toggleButtons[i] != toggle)
+                count++;
+            }
+        }
+        if (count > 3) // ตรวจสอบว่ามี toggle เปิดอยู่มากกว่า 3 หรือไม่
+        {
+            foreach (Toggle button in toggleButtons)
+            {
+                if (button.isOn)
                 {
-                    toggleButtons[i].isOn = false;
+                    button.isOn = false;
+                    count--;
+                    if (count <= 3)
+                    {
+                        break;
+                    }
                 }
             }
         }

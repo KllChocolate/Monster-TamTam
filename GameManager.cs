@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     public GameObject spawn;
     public GameObject shop;
 
-    public Vector2 spawnLocation = new Vector2(-6.4f, 0f);
+    public Vector2 spawnLocation = new Vector2(-8.27f, 0f);
 
     private void Start()
     {

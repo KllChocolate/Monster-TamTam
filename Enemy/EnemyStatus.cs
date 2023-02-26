@@ -9,27 +9,35 @@ public class EnemyStatus : MonoBehaviour
     public float maxHp = 100;
     public float currentHp;
     public float damage;
-    public float attackSpeed;
     public float defense;
-    public float knockback = 1f;
+    public float mp;
+    public float useMp;
+
     public float speed = 3;
-    public float nearDistance = 4;
     public float stoppingDistance;
-    public float fightspeed = 3;
     public float cooldown = 5;
     public float findRange = 20;
     public float lastAttackTime = -Mathf.Infinity;
     public float lastFXTime = -Mathf.Infinity;
-    public bool readyAttack = false;
+    public bool readyAttack = true;
     public bool isAttacking = false;
-    public bool isEvading = false;
     public GameObject AreaAttack;
     public GameObject fxDush;
+    public GameObject skill;
+    public GameObject beforeskill;
+    public float skillTime;
+    public float rangeskill = 5;
+    public bool isAllEnemiesDead = false;
+    public bool stop = false;
+    public float walkTime = 1.0f;
+    private float walkTimer = 0.0f;
+    public float waitTime = 0.3f;
+    private float waitTimer = 0.0f;
+    private Vector2 moveDirection = Vector2.right;
 
     public static EnemyStatus instance;
 
     private Animator animator;
-    private Vector3 direction;
 
     private void Awake()
     {
@@ -40,10 +48,43 @@ public class EnemyStatus : MonoBehaviour
         AreaAttack.SetActive(false);
         animator = GetComponent<Animator>();
         currentHp = maxHp;
+        skillTime = Random.Range(10, 15);
+        mp = Random.Range(5, 15);
     }
     void Update()
     {
-
+        if (isAllEnemiesDead) IsAllEnemiesDead();
+        if (!stop)
+        {
+            walkTimer += Time.deltaTime;
+            transform.position += (Vector3)moveDirection * speed * Time.deltaTime;
+            if (Time.time - lastFXTime > 0.5f)
+            {
+                StartCoroutine(SpawnFX());
+            }
+            animator.SetBool("Run", true);
+            if (moveDirection.x > 0)
+            {
+                transform.localScale = new Vector3(-2.5f, 2.5f, 2.5f);
+            }
+            else if (moveDirection.x < 0)
+            {
+                transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
+            }
+            if (walkTimer >= walkTime)
+            {
+                StopWalking();
+            }
+        }
+        else
+        {
+            waitTimer += Time.deltaTime;
+            if (waitTimer >= waitTime)
+            {
+                ResumeWalking();
+                waitTimer = 0.0f;
+            }
+        }
         //ตั้งค่าค้นหาศัตรู
         GameObject[] hitEnemies = GameObject.FindGameObjectsWithTag("Player");
         List<GameObject> enemiesInRange = new List<GameObject>();
@@ -61,8 +102,6 @@ public class EnemyStatus : MonoBehaviour
         {
             GameObject closestEnemy = enemiesInRange[0];//ตัวที่ใกล้สุด
             Vector3 direction = (closestEnemy.transform.position - transform.position).normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(transform.position - closestEnemy.transform.position, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
             if (direction.x > 0)
             {
                 transform.localScale = new Vector3(-2.5f, 2.5f, 2.5f);
@@ -72,41 +111,60 @@ public class EnemyStatus : MonoBehaviour
                 transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
             }
             float closestDistance = Vector2.Distance(transform.position, closestEnemy.transform.position);
-            foreach (GameObject enemy in enemiesInRange) //หาตัวใกล้สุด
+            foreach (GameObject enemy in enemiesInRange)
             {
-                float distance = Vector2.Distance(transform.position, enemy.transform.position);
-                if (distance < closestDistance)//ชี้เป้า
+                if (enemy.CompareTag("Player") && enemy.activeSelf && !enemy.CompareTag("Dead"))
                 {
-                    closestEnemy = enemy;
-                    closestDistance = distance;
+                    float distance = Vector2.Distance(transform.position, enemy.transform.position);
+                    if (distance < closestDistance)
+                    {
+                        closestEnemy = enemy;
+                        closestDistance = distance;
+                    }
                 }
             }
-            if (Time.time - lastAttackTime > cooldown - attackSpeed) //เวลา-การโจมตีล่าสุด > cooldown
+            if (Time.time - lastAttackTime > cooldown && readyAttack) //พร้อมโจมตี
             {
-                readyAttack = true;
-                if (closestDistance > stoppingDistance) //ศัตรูที่อยู่ใกล้สุดแต่มากกว่าระยะหยุด
+                if (closestDistance > stoppingDistance)
                 {
-                    animator.SetBool("Run", true);//วิ่งเข้าหา
-                    transform.position = Vector2.MoveTowards(transform.position, closestEnemy.transform.position, speed * Time.deltaTime);
+                    // Move towards the closest enemy.
+                    transform.position = Vector3.MoveTowards(transform.position, closestEnemy.transform.position, speed * Time.deltaTime);
+                    animator.SetBool("Run", true);
                 }
-                if (readyAttack && closestDistance <= stoppingDistance && !isAttacking)
+                if (closestDistance <= stoppingDistance)
                 {
-                    Attack();
-                    animator.SetBool("Run", false);
-                    isAttacking = true;
+                    if (readyAttack)
+                    {
+                        animator.SetBool("Run", false);
+                        Attack();
+                        isAttacking = true;
+                        readyAttack = false;
+                        
+                    }
                 }
-                if (closestDistance > stoppingDistance && Time.time - lastFXTime > 0.5f)
+                if (Time.time - lastFXTime > 0.5f)
                 {
                     StartCoroutine(SpawnFX());
                 }
-            }
-            else //ถ้าติดคูดาวจะวิ่งออกห่าง
-            {
-                isAttacking = false;
-                animator.SetBool("Run", true);
-                StartCoroutine(Evade(closestEnemy));
-            }
 
+            }
+            //สกิล
+            if (skillTime <= 0 && mp >= 5 && closestDistance <= rangeskill)
+            {
+                Instantiate(beforeskill, transform.position, Quaternion.identity);
+                animator.SetTrigger("Skill");
+                StartCoroutine(UseSkill());
+                skillTime = Random.Range(6, 11);
+                mp -= useMp;
+            }
+            else
+            {
+                skillTime -= Time.deltaTime;
+            }
+        }
+        if (IsAllEnemiesDead())
+        {
+            isAllEnemiesDead = true; // กำหนดว่าศัตรูตายหมดแล้ว
         }
 
     }
@@ -114,70 +172,21 @@ public class EnemyStatus : MonoBehaviour
     private void Attack()
     {
         //animator.SetTrigger("Attack");
-        animator.SetBool("Run", false);
         AreaAttack.SetActive(true);
         lastAttackTime = Time.time;
         StartCoroutine(AttackCooldown());
-        readyAttack = false;
-        isAttacking = false;
     }
 
     private IEnumerator AttackCooldown()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
+        isAttacking = false;
         AreaAttack.SetActive(false);
-        yield return new WaitForSeconds(cooldown - attackSpeed);
+        yield return new WaitForSeconds(cooldown);
         readyAttack = true;
+
     }
-    private IEnumerator Evade(GameObject closestEnemy)
-    {
-        isEvading = true;
-        float distance = Vector3.Distance(transform.position, closestEnemy.transform.position);
 
-        // สุ่มเวลาหยุดเคลื่อนที่เพื่อความสมจริง
-        float randomDelay = Random.Range(0.2f, 0.8f);
-        yield return new WaitForSeconds(randomDelay);
-
-        if (distance < nearDistance)
-        {
-            Vector3 dirToPlay = transform.position - closestEnemy.transform.position;
-            Vector3 newPos = transform.position + dirToPlay;
-
-            // สุ่มการเคลื่อนที่ขึ้นหรือลงเพื่อหลบ
-            float randomVertical = Random.Range(-1f, 1f);
-            newPos.y += randomVertical;
-
-            // สุ่มเปลี่ยนทิศทางเป็นขึ้นหรือลง
-            if (Mathf.Abs(dirToPlay.x) > Mathf.Abs(dirToPlay.y))
-            {
-                newPos.y += Mathf.Sign(randomVertical) * Mathf.Abs(randomVertical) * (stoppingDistance / 2f);
-            }
-            else
-            {
-                newPos.x += Mathf.Sign(dirToPlay.x) * (stoppingDistance / 2f);
-            }
-
-            newPos.z = transform.position.z;
-            transform.position = Vector3.MoveTowards(transform.position, newPos, speed * Time.deltaTime);
-            animator.SetBool("Run", true);
-        }
-
-        Vector3 direction = (closestEnemy.transform.position - transform.position).normalized;
-        transform.right = direction;
-        if (direction.x > 0)
-        {
-            transform.localScale = new Vector3(-2.5f, 2.5f, 2.5f);
-        }
-        else if (direction.x < 0)
-        {
-            transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
-        }
-
-        animator.SetBool("Run", true);
-
-        yield return new WaitForSeconds(cooldown - attackSpeed);
-        isEvading = false;
-    }
     private IEnumerator SpawnFX()
     {
         lastFXTime = Time.time;
@@ -185,8 +194,13 @@ public class EnemyStatus : MonoBehaviour
         Instantiate(fxDush, spawnPosition, Quaternion.identity);
         yield return null;
     }
+    private IEnumerator UseSkill()
+    {
+        yield return new WaitForSeconds(0.5f);
+        Instantiate(skill, transform.position, Quaternion.identity);
+    }
 
-    public void TakeDamage(float damage, Vector2 direction)
+    public void TakeDamage(float damage)//(float damage, Vector2 direction)
     {
         float finalDamage = damage / 2f * (1 - defense / 200f);
         currentHp -= finalDamage;
@@ -195,7 +209,7 @@ public class EnemyStatus : MonoBehaviour
             readyAttack = false;
             animator.SetBool("Death", true);
             animator.SetBool("Run", false);
-            GetComponent<Collider2D>().enabled = false;
+            gameObject.tag = "Dead";
             GetComponent<EnemyStatus>().enabled = false;
         }
         else
@@ -204,11 +218,35 @@ public class EnemyStatus : MonoBehaviour
         }
 
     }
+    public void StopWalking()
+    {
+        stop = true;
+        walkTimer = 0.0f;
+    }
+    public void ResumeWalking()
+    {
+        stop = false;
+        moveDirection = Random.insideUnitCircle;
+    }
+    private bool IsAllEnemiesDead()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject enemy in enemies)
+        {
+            if (enemy.GetComponent<PlayerAttack>().currentHp > 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, stoppingDistance);
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(transform.position, rangeskill);
     }
 }

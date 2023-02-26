@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
-{
-    Inventory inventory;
+{//‰«È‡æ‘Ë¡‰Õ‡∑Á¡≈ßslot
+
     public static InventoryUI instance;
 
     private void Awake()
@@ -14,20 +14,16 @@ public class InventoryUI : MonoBehaviour
 
     void Start()
     {
-        inventory = Inventory.instance;
-        inventory.onItemChangedCallback += UpdateUI;
-    }
-    void Update()
-    {
+        Inventory.instance.onItemChangedCallback += UpdateUI;
     }
     public void UpdateUI()
     {
         InventorySlot[] slots = GetComponentsInChildren<InventorySlot>();
         for (int i = 0; i < slots.Length ; i++)
         { 
-            if(i<inventory.items.Count)
+            if(i< Inventory.instance.items.Count)
             {
-                slots[i].AddItem(inventory.items[i]);
+                slots[i].AddItem(Inventory.instance.items[i]);
             }
             else
             {

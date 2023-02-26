@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using UnityEngine.UI;
+using TMPro;
 
 public class PlayerStatus : MonoBehaviour
 {
+    [Header("NameTamTam")]
+    public string monsterName;
+    public Sprite monsterSprite;
+
+    public Image monsterImage;
+    public TextMeshPro monsterText;
+
     [Header("PictureStatus")]
     public GameObject zzzUI;
     public GameObject stomachUI;
-    public GameObject pooUI;
     public GameObject poopoo;
     public GameObject injured;
     public GameObject sick;
@@ -25,8 +33,9 @@ public class PlayerStatus : MonoBehaviour
     private float waitTimer = 0.0f;
 
     [Header("BasicStatus")]
-    public float maxHp = 100;
+    public float maxHp;
     public float currentHp;
+    public float maxMp;
     public float maxFood = 100;
     public float currentFood;
     public float metabolic = 20;
@@ -39,15 +48,22 @@ public class PlayerStatus : MonoBehaviour
     public float chackDistance = 4;
 
     [Header("Status")]
-    public float MaxStr;
-    public float MinStr;
     public float strength;
-    public float MaxAgi;
-    public float MinAgi;
     public float agility;
-    public float MaxDex;
-    public float MinDex;
     public float dexterity;
+    public float intelligent;
+
+    [Header("MaxStatus")]
+    public float MaxStr;
+    public float MaxAgi;
+    public float MaxDex;
+    public float MaxInt;
+
+    [Header("MinStatus")]
+    public float MinStr;
+    public float MinAgi;
+    public float MinDex;
+    public float MinInt;
 
     [Header("ExpStatus")]
     public int level = 1;
@@ -69,22 +85,36 @@ public class PlayerStatus : MonoBehaviour
     private Coroutine Gym;
     private Coroutine PlayGround;
     private Coroutine Boxing;
-    private Coroutine Bathroom;
+    private Coroutine Library;
 
     private void Awake()
     {
         instance = this;
+        monsterImage = GetComponent<Image>();
+        monsterText = GetComponentInChildren<TextMeshPro>();
     }
 
     private void Start()
     {
-        currentFood = maxFood;
+        monsterText.text = monsterName;
+        monsterImage.sprite = monsterSprite;
+
+        zzzUI = gameObject.transform.Find("sleep").gameObject;
+        stomachUI = gameObject.transform.Find("stomach").gameObject;
+        injured = gameObject.transform.Find("injured").gameObject;
+        sick = gameObject.transform.Find("sick").gameObject;
+        Love = gameObject.transform.Find("Love").gameObject;
+        poopoo = Resources.Load<GameObject>(name);
+
         animator = GetComponent<Animator>();
-        strength = Random.Range(4, 11);
-        agility = Random.Range(4, 11);
-        dexterity = Random.Range(4, 11);
+        strength = Random.Range(5, 11);
+        intelligent = Random.Range(5, 11);
+        agility = Random.Range(5, 11);
+        dexterity = Random.Range(5, 11);
         timepoopoo = Random.Range(150, 300);
         timetosick = Random.Range(300, 800);
+
+        currentFood = maxFood;
         maxHp = strength * 10;
         currentHp = maxHp;
         damage = strength;
@@ -94,6 +124,7 @@ public class PlayerStatus : MonoBehaviour
     void Update()
     {
         maxHp = strength * 10;
+        maxMp = intelligent;
         damage = strength;
         attackSpeed = agility * 0.1f;
         defense = dexterity;
@@ -103,17 +134,17 @@ public class PlayerStatus : MonoBehaviour
         if (!stop)
         {
             walkTimer += Time.deltaTime;
-            moveDirection = Random.insideUnitCircle;
             transform.position += (Vector3)moveDirection * speed * Time.deltaTime;
-
             animator.SetBool("Run", true);
             if (moveDirection.x > 0)
             {
                 transform.localScale = new Vector3(-2.5f, 2.5f, 2.5f);
+                monsterText.transform.localScale = new Vector3(-0.4f, 0.4f, 0.4f);
             }
             else if (moveDirection.x < 0)
             {
                 transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
+                monsterText.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
             }
             if (walkTimer >= walkTime)
             {
@@ -190,12 +221,12 @@ public class PlayerStatus : MonoBehaviour
             }
         }
         //Tired
-        if (currentHp >= 80)
+        if (currentHp >= 50)
         {
             zzzUI.SetActive(false);
             animator.SetBool("Sleep", false);
         }
-        if (currentHp <= 30) zzzUI.SetActive(true);
+        if (currentHp <= 10) zzzUI.SetActive(true);
         else if (currentHp <= 0)
         {
             animator.SetBool("Sleep", true);
@@ -203,15 +234,12 @@ public class PlayerStatus : MonoBehaviour
             currentHp = 0;
         }
         //Poo
-        if (timepoopoo > 0) timepoopoo -= Time.deltaTime; pooUI.SetActive(false);
-        if (timepoopoo < 30) pooUI.SetActive(true);
+        if (timepoopoo > 0) timepoopoo -= Time.deltaTime;
         if (timepoopoo <= 0)
         {
             timepoopoo = Random.Range(150, 300);
             Vector3 spawnPosition = transform.position;
             Instantiate(poopoo, spawnPosition, Quaternion.identity);
-            pooUI.SetActive(false);
-            timetosick = -30;
         }
 
         //Sick
@@ -296,12 +324,9 @@ public class PlayerStatus : MonoBehaviour
         {
             Boxing = StartCoroutine(IncreaseBoxingStats());
         }
-        if (collider.gameObject.layer == LayerMask.NameToLayer("Bathroom"))
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Library"))
         {
-            if (timepoopoo < 30)
-            {
-                Bathroom = StartCoroutine(pootime()); 
-            }
+            Library = StartCoroutine(IncreaseLibraryStats()); 
         }
 
     }
@@ -327,22 +352,20 @@ public class PlayerStatus : MonoBehaviour
         {
             StopCoroutine(Boxing);
         }
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Library"))
+        {
+            StopCoroutine(Library);
+        }
+
         if (collider.gameObject.layer == LayerMask.NameToLayer("Arena"))
         {
-            GetComponent<PlayerAttack>().enabled = false;
             currentHp = PlayerAttack.instance.currentHp;
         }
 
     }
-    private void OnTriggerStay2D(Collider2D collider)
-    {
-        if (collider.gameObject.layer == LayerMask.NameToLayer("Arena"))
-        {
-            GetComponent<PlayerAttack>().enabled = true;
-        }
-    }
+ 
         //ห้องพยาบาล
-        private IEnumerator IncreaseNursingStats()
+    private IEnumerator IncreaseNursingStats()
     {
         yield return new WaitForSeconds(2);
         while (currentFood >= metabolic)
@@ -362,12 +385,28 @@ public class PlayerStatus : MonoBehaviour
         while (currentFood >= metabolic)
         {
             strength += 1;
-            agility -= 1;
+            intelligent -= 1;
             currentFood -= metabolic;
             timepoopoo -= 2;
             IncreaseExperience(10);
             if (strength >= MaxStr) strength = MaxStr;
-            if (agility <= MinAgi) agility= MinAgi; 
+            if (intelligent <= MinInt) intelligent = MinInt; 
+            yield return new WaitForSeconds(1f);
+        }
+    }
+    //เข้าห้องสมุด
+    private IEnumerator IncreaseLibraryStats()
+    {
+        yield return new WaitForSeconds(2);
+        while (currentFood >= metabolic)
+        {
+            intelligent += 1;
+            strength -= 1;
+            currentFood -= metabolic;
+            timepoopoo -= 2;
+            IncreaseExperience(10);
+            if (intelligent >= MaxDex) intelligent = MaxInt;
+            if (strength <= MinStr) strength = MinStr;
             yield return new WaitForSeconds(1f);
         }
     }
@@ -394,15 +433,16 @@ public class PlayerStatus : MonoBehaviour
         while (currentFood >= metabolic)
         {
             dexterity += 1;
-            strength -= 1;
+            agility -= 1;
             currentFood -= metabolic;
             timepoopoo -= 2;
             IncreaseExperience(10);
             if (dexterity >= MaxDex) dexterity = MaxDex;
-            if (strength <= MinStr) strength = MinStr;
+            if (agility <= MinAgi) agility = MinAgi;
             yield return new WaitForSeconds(1f);
         }
     }
+
     //ระบบเลเวล
     public void IncreaseExperience(int amount)
     {
@@ -417,6 +457,12 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
+    public void SetMonster(string name)
+    {
+        monsterName = name;
+        monsterText.text = monsterName;
+    }
+
 
     public void StopWalking()
     {
@@ -428,16 +474,6 @@ public class PlayerStatus : MonoBehaviour
     {
         stop = false;
         moveDirection = Random.insideUnitCircle;
-    }
-    public IEnumerator pootime()
-    {
-        Debug.Log("ขี้จะออกแล้ว");
-        yield return new WaitForSeconds(3);
-        Vector3 spawnPosition = transform.position;
-        Instantiate(poopoo, spawnPosition, Quaternion.identity);
-        timepoopoo = Random.Range(150, 300);
-        pooUI.SetActive(false);
-
     }
     public IEnumerator Eat()
     {
@@ -461,6 +497,5 @@ public class PlayerStatus : MonoBehaviour
         Love.SetActive(false);
         stop = false;
     }
-
 
 }

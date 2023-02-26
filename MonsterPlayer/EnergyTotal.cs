@@ -51,9 +51,9 @@ public class EnergyTotal : MonoBehaviour
         float currentTime = Time.time; // เก็บเวลาปัจจุบัน
         float timeSinceLastUpdate = currentTime - lastEnergyUpdate; // คำนวณเวลาที่ผ่านไปตั้งแต่ครั้งล่าสุดที่อัปเดตค่าพลังงาน
 
-        if (timeSinceLastUpdate >= 300) // ตรวจสอบว่าผ่านไปเวลา 5 นาทีหรือไม่
+        if (timeSinceLastUpdate >= 60) // ตรวจสอบว่าผ่านไปเวลา 1 นาทีหรือไม่
         {
-            int energyToAdd = (int)(timeSinceLastUpdate / 300); // คำนวณจำนวนพลังงานที่ต้องเพิ่ม
+            int energyToAdd = (int)(timeSinceLastUpdate / 60); // คำนวณจำนวนพลังงานที่ต้องเพิ่ม
             energy += energyToAdd;
             lastEnergyUpdate = currentTime; // อัปเดตเวลาล่าสุดที่อัปเดตค่าพลังงานใน lastEnergyUpdate
         }
@@ -69,7 +69,7 @@ public class EnergyTotal : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(300f);
+            yield return new WaitForSeconds(60f);
             AddEnergy();
         }
     }

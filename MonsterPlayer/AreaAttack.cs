@@ -7,11 +7,11 @@ public class AreaAttack : MonoBehaviour
     public float damage;
     public float knockback = 1f;
     public GameObject fxAttack;
-    public float findRange;
+
 
     void Start()
     {
-        findRange = PlayerAttack.instance.findRange;
+
     }
 
     void Update()
@@ -23,9 +23,9 @@ public class AreaAttack : MonoBehaviour
         if (collider.GetComponent<EnemyStatus>() != null)
         {
             Instantiate(fxAttack, transform.position, Quaternion.identity);
-            Vector2 direction = (collider.transform.position - transform.position).normalized;
-            collider.GetComponent<Rigidbody2D>().velocity = direction * knockback;
-            collider.GetComponent<EnemyStatus>().TakeDamage(damage, direction);
+            //Vector2 direction = (collider.transform.position - transform.position).normalized;
+            //collider.GetComponent<Rigidbody2D>().velocity = direction * knockback;
+            collider.GetComponent<EnemyStatus>().TakeDamage(damage);//(damage, direction);
         } 
         
     }

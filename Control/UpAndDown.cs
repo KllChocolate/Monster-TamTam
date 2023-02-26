@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UpAndDown : MonoBehaviour
 {
-    private Vector2 position = new Vector2(7.62f, -6.66f);
+    private Vector2 position = new Vector2(9f, -6.66f);
     public float speed;
     private int direction;
     private float delay;

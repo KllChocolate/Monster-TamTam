@@ -19,9 +19,7 @@ public class Strawberry : MonoBehaviour
     IEnumerator eat()
     {
         yield return new WaitForSeconds(2f);
-        PlayerStatus.instance.MaxStr += 1;
-        PlayerStatus.instance.MaxAgi += 1; 
-        PlayerStatus.instance.MaxDex += 1;
+        PlayerStatus.instance.MaxInt += 1;
         animator.SetTrigger("Death");
         Destroy(gameObject, 1f);
     }
