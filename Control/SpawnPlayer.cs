@@ -8,14 +8,14 @@ public class SpawnPlayer : MonoBehaviour
     public GameObject playerPrefab;
     public string nameScene;
     public int energy;
+    public PassData _energy;
 
     public static SpawnPlayer instance;
-    private void Awake()
+
+    public void Awake()
     {
-        instance= this;
+        instance = this;
     }
-
-
     public void Easy()
     {
         nameScene = "Monster TamTam Arena OneEasy";
@@ -38,6 +38,6 @@ public class SpawnPlayer : MonoBehaviour
     {
         SceneManager.LoadScene(nameScene);
         DontDestroyOnLoad(playerPrefab.gameObject);
-        EnergyTotal.instance.energy -= energy;
+        _energy.Value -= energy;
     }
 }

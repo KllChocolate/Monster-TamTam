@@ -9,14 +9,15 @@ public class SpawnPlayerThree : MonoBehaviour
     public string nameScene;
     public GameObject[] Player;
     public int energy;
+    public PassData _energy;
     public bool canAdd;
 
     public static SpawnPlayerThree instance;
-    private void Awake()
+
+    public void Awake()
     {
         instance = this;
     }
-
 
     public void Easy()
     {
@@ -42,9 +43,9 @@ public class SpawnPlayerThree : MonoBehaviour
         DontDestroyOnLoad(Player[0].gameObject);
         DontDestroyOnLoad(Player[1].gameObject);
         DontDestroyOnLoad(Player[2].gameObject);
-        EnergyTotal.instance.energy -= energy;
+        _energy.Value -= energy;
 
-        
+
     }
     public void add(GameObject PlayerPrefab)
     {

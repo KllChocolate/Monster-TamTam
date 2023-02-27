@@ -9,6 +9,7 @@ public class SpawnCapsule : MonoBehaviour
     public GameObject Capsule;
     private Toggle toggle;
     public LayerMask spawnLayerMask;
+    public PassData money;
 
 
     public void Start()
@@ -21,7 +22,7 @@ public class SpawnCapsule : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                if (MoneyTotal.instance.money >= amount)
+                if (money.Value >= amount)
                 {
                     if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
                     {
@@ -31,7 +32,7 @@ public class SpawnCapsule : MonoBehaviour
                         if (hit.collider != null)
                         {
                             Instantiate(Capsule, spawnPosition, Quaternion.identity);
-                            MoneyTotal.instance.money -= amount;
+                            money.Value -= amount;
                         }
                     }
                 }

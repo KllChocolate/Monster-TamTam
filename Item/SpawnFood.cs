@@ -13,6 +13,7 @@ public class SpawnFood : MonoBehaviour
     public GameObject food;
     private Toggle toggle;
     public LayerMask spawnLayerMask;
+    public PassData money;
 
 
     public static SpawnFood instance;
@@ -32,7 +33,7 @@ public class SpawnFood : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                if (MoneyTotal.instance.money >= amount)
+                if (money.Value >= amount)
                 {
                     if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
                     {
@@ -42,7 +43,7 @@ public class SpawnFood : MonoBehaviour
                         if (hit.collider != null)
                         {
                             Instantiate(food, spawnPosition, Quaternion.identity);
-                            MoneyTotal.instance.money -= amount;
+                            money.Value -= amount;
                         }
                     }
                 }

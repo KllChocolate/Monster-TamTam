@@ -30,6 +30,7 @@ public class Shop : MonoBehaviour
     public Text strawberryText;
     public Item strawberry;
 
+    public PassData money;
 
     public GameObject notEnoughMoney;
     void Start()
@@ -51,11 +52,11 @@ public class Shop : MonoBehaviour
 
     public void Banana()
     { 
-        if( bananaValue <= MoneyTotal.instance.money) 
+        if( money.Value >= bananaValue) 
         { 
             SpawnFood.instance.food = banana;
             bananbaText.text = "Sold";
-            MoneyTotal.instance.money -= bananaValue;
+            money.Value -= bananaValue;
             bananaValue = 0;
         }
         else 
@@ -66,11 +67,11 @@ public class Shop : MonoBehaviour
     }
     public void Cherries()
     {
-        if (cherriesValue <= MoneyTotal.instance.money)
+        if (money.Value >= cherriesValue)
         {
             SpawnFood.instance.food = cherries;
             cherriesText.text = "Sold";
-            MoneyTotal.instance.money -= cherriesValue;
+            money.Value -= cherriesValue;
             cherriesValue = 0;
         }
         else
@@ -81,11 +82,11 @@ public class Shop : MonoBehaviour
     }
     public void Malon()
     {
-        if (melonValue <= MoneyTotal.instance.money)
+        if (money.Value >= melonValue)
         {
             SpawnFood.instance.food = melon;
             melonText.text = "Sold";
-            MoneyTotal.instance.money -= melonValue;
+            money.Value -= melonValue;
             melonValue = 0;
         }
         else
@@ -96,13 +97,13 @@ public class Shop : MonoBehaviour
     }
     public void Kiwi()
     {
-        if (KiwiValue <= MoneyTotal.instance.money)
+        if (money.Value >= KiwiValue)
         {
-            MoneyTotal.instance.money -= KiwiValue;
+            money.Value -= KiwiValue;
             Inventory.instance.Add(kiwi);
         }
         
-        if(KiwiValue > MoneyTotal.instance.money)
+        else
         {
             notEnoughMoney.SetActive(true);
             StartCoroutine(NotEnoughMoney());
@@ -110,14 +111,13 @@ public class Shop : MonoBehaviour
     }
     public void Orange()
     {
-        if (OrangeValue <= MoneyTotal.instance.money)
+        if (money.Value >= OrangeValue)
         {
-            MoneyTotal.instance.money -= OrangeValue;
+            money.Value -= OrangeValue;
             Inventory.instance.Add(orange);
 
         }
-
-        if (OrangeValue > MoneyTotal.instance.money)
+        else
         {
             notEnoughMoney.SetActive(true);
             StartCoroutine(NotEnoughMoney());
@@ -125,13 +125,13 @@ public class Shop : MonoBehaviour
     }
     public void Pineapple()
     {
-        if (PineappleValue <= MoneyTotal.instance.money)
+        if (money.Value >= PineappleValue)
         {
-            MoneyTotal.instance.money -= PineappleValue;
+            money.Value -= PineappleValue;
             Inventory.instance.Add(pineapple);
 
         }
-        if (PineappleValue > MoneyTotal.instance.money)
+        else
         {
             notEnoughMoney.SetActive(true);
             StartCoroutine(NotEnoughMoney());
@@ -139,13 +139,13 @@ public class Shop : MonoBehaviour
     }
     public void Strawberry()
     {
-        if (StrawberryValue <= MoneyTotal.instance.money)
+        if (money.Value >= StrawberryValue)
         {
-            MoneyTotal.instance.money -= StrawberryValue;
+            money.Value -= StrawberryValue;
             Inventory.instance.Add(strawberry);
 
         }
-        if (StrawberryValue > MoneyTotal.instance.money)
+        else
         {
             notEnoughMoney.SetActive(true);
             StartCoroutine(NotEnoughMoney());
@@ -153,7 +153,7 @@ public class Shop : MonoBehaviour
     }
     public IEnumerator NotEnoughMoney()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         notEnoughMoney.SetActive(false);
     }
 }

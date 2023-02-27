@@ -11,6 +11,7 @@ public class ArenaManager : MonoBehaviour
     public int money;
     public float timer = 3;
     public float time = 0;
+    public PassData _money;
 
     public static ArenaManager instance;
 
@@ -41,25 +42,24 @@ public class ArenaManager : MonoBehaviour
         if (players.Length == 0)
         {
             loseUI.SetActive(true);
-            StartCoroutine(comeback());
+            StartCoroutine(comeback(players));
         }
 
         if (enemies.Length == 0)
         {
             winUI.SetActive(true);
-            MoneyTotal.instance.money += money;
-            StartCoroutine(comeback());
-            Destroy(players[0]);
-            Destroy(players[1]);
-            Destroy(players[2]);
+            StartCoroutine(comeback(players));
+            _money.Value += money;
         }
     }
 
-    IEnumerator comeback()
+    IEnumerator comeback(GameObject[] players)
     {
         yield return new WaitForSeconds(2);
         SceneManager.LoadScene("Monster TamTam Lobby");
-
+        Destroy(players[0]);
+        Destroy(players[1]);
+        Destroy(players[2]);
     }
 
 }

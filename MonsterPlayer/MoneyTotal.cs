@@ -8,13 +8,19 @@ public class MoneyTotal : MonoBehaviour
 {
     public static MoneyTotal instance;
 
-    public int money = 0;
     public Text moneyText;
+    public PassData money;
+
 
     private void Awake()
     {
         instance = this;
     }
+    private void Start()
+    {
+        moneyText.text = money.Value.ToString();
+    }
+
 
     private void Update()
     {
@@ -23,14 +29,14 @@ public class MoneyTotal : MonoBehaviour
 
     public void AddMoney(int amount)
     {
-        money += amount;
+        money.Value += amount;
     }
 
     public void SpendMoney(int amount)
     {
-        if (money >= amount)
-        { 
-            money -= amount; 
+        if (money.Value >= amount)
+        {
+            money.Value -= amount; 
         }
         else
         {
@@ -41,6 +47,6 @@ public class MoneyTotal : MonoBehaviour
 
     private void UpdateMoneyDisplay()
     {
-        moneyText.text = money.ToString();
+        moneyText.text = money.Value.ToString();
     }
 }

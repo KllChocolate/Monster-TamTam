@@ -5,10 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class StartManu : MonoBehaviour
 {
- 
+    [SerializeField] private PassData money;
+    [SerializeField] private PassData energy;
+    
     public void PlayGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        money.Value = 10000;
+        energy.Value = 100;
     }
     public void LoadGame()
     {
