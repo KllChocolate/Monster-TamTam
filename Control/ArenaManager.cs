@@ -56,7 +56,7 @@ public class ArenaManager : MonoBehaviour
     IEnumerator comeback(GameObject[] players)
     {
         yield return new WaitForSeconds(2);
-        SceneManager.LoadScene("Monster TamTam Lobby");
+        SceneManager.LoadScene("Monster TamTam Game");
         Destroy(players[0]);
         Destroy(players[1]);
         Destroy(players[2]);

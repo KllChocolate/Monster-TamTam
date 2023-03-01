@@ -65,11 +65,11 @@ public class EnemyStatus : MonoBehaviour
             animator.SetBool("Run", true);
             if (moveDirection.x > 0)
             {
-                transform.localScale = new Vector3(-2.5f, 2.5f, 2.5f);
+                transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
             }
             else if (moveDirection.x < 0)
             {
-                transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
+                transform.localScale = new Vector3(-2.5f, 2.5f, 2.5f);
             }
             if (walkTimer >= walkTime)
             {

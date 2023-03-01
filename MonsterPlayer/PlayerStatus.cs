@@ -6,7 +6,7 @@ using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayerStatus : MonoBehaviour
+public class PlayerStatus : MonoBehaviour,IDataPersistence
 {
     [Header("NameTamTam")]
     public string monsterName;
@@ -31,6 +31,7 @@ public class PlayerStatus : MonoBehaviour
     private float walkTimer = 0.0f;
     public float waitTime = 1.0f;
     private float waitTimer = 0.0f;
+    public Vector3 position;
 
     [Header("BasicStatus")]
     public float maxHp;
@@ -96,6 +97,7 @@ public class PlayerStatus : MonoBehaviour
 
     private void Start()
     {
+        position = transform.position;
         monsterText.text = monsterName;
         monsterImage.sprite = monsterSprite;
 
@@ -105,12 +107,7 @@ public class PlayerStatus : MonoBehaviour
         sick = gameObject.transform.Find("sick").gameObject;
         Love = gameObject.transform.Find("Love").gameObject;
         poopoo = Resources.Load<GameObject>(name);
-
         animator = GetComponent<Animator>();
-        strength = Random.Range(5, 11);
-        intelligent = Random.Range(5, 11);
-        agility = Random.Range(5, 11);
-        dexterity = Random.Range(5, 11);
         timepoopoo = Random.Range(150, 300);
         timetosick = Random.Range(300, 800);
 
@@ -498,4 +495,31 @@ public class PlayerStatus : MonoBehaviour
         stop = false;
     }
 
+    public void LoadData(GameData data)
+    {
+        if (data != null)
+        {
+            strength = data.strength;
+            agility = data.agility;
+            dexterity = data.dexterity;
+            intelligent = data.intelligent;
+            currentHp = data.currentHp;
+            currentFood = data.currentFood;
+            position = data.position;
+        }
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        if (data != null)
+        {
+            data.strength = strength;
+            data.agility = agility;
+            data.dexterity = dexterity;
+            data.intelligent = intelligent;
+            data.currentHp = currentHp;
+            data.currentFood = currentFood;
+            data.position = position;
+        }
+    }
 }

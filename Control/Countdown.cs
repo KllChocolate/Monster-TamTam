@@ -43,6 +43,6 @@ public class Countdown : MonoBehaviour
     public IEnumerator backSecnes()
     {
         yield return new WaitForSeconds(2);
-        SceneManager.LoadScene("Monster TamTam Lobby");
+        SceneManager.LoadScene("Monster TamTam Game");
     }
 }
