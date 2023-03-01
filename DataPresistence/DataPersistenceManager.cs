@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-//using UnityEditorInternal;
 
 public class DataPersistenceManager : MonoBehaviour
 {
@@ -17,8 +16,9 @@ public class DataPersistenceManager : MonoBehaviour
     private GameData gameData;
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
-    //public string selectedProfileId = "";
+
     public static DataPersistenceManager instance { get; private set; }
+
     private void Awake()
     {
         if (instance != null)
@@ -27,36 +27,31 @@ public class DataPersistenceManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         instance = this;
         DontDestroyOnLoad(gameObject);
 
         dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, useEncryption);
     }
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
+
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
     }
-    public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+
+    private void Start()
     {
         dataPersistenceObjects = FindAllDataPersistenceObjects();
         LoadGame();
     }
-    public void OnSceneUnloaded(Scene scene) 
-    {
-        SaveGame();
-    }
-    public void Start()
-    {
-        dataHandler = new FileDataHandler(Application.persistentDataPath,fileName, useEncryption);
-        dataPersistenceObjects= FindAllDataPersistenceObjects();
-        LoadGame();
-    }
+
     public void NewGame()
     {
         gameData = new GameData();
@@ -64,8 +59,8 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void LoadGame()
     {
-        gameData = dataHandler.Load();//(selectedProfileId);
-        if(gameData == null && initializeDataIfNull)
+        gameData = dataHandler.Load();
+        if (gameData == null && initializeDataIfNull)
         {
             NewGame();
         }
@@ -75,32 +70,41 @@ public class DataPersistenceManager : MonoBehaviour
             Debug.Log("ไม่มีพบข้อมูลเกม ");
             return;
         }
-        foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) 
+
+        foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
         {
             dataPersistenceObj.LoadData(gameData);
         }
     }
 
-    public void SaveGame() 
+    public void SaveGame()
     {
         if (gameData == null)
         {
             return;
         }
+
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
         {
             dataPersistenceObj.SaveData(ref gameData);
         }
 
-        dataHandler.Save(gameData);//, selectedProfileId);
+        dataHandler.Save(gameData);
     }
-    private void OnApplicationQuit()
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        dataPersistenceObjects = FindAllDataPersistenceObjects();
+        LoadGame();
+    }
+
+    private void OnSceneUnloaded(Scene scene)
     {
         SaveGame();
     }
 
     private List<IDataPersistence> FindAllDataPersistenceObjects()
-    { 
+    {
         IEnumerable<IDataPersistence> dataPersistenceObjects = FindObjectsOfType<MonoBehaviour>().OfType<IDataPersistence>();
 
         return new List<IDataPersistence>(dataPersistenceObjects);
@@ -110,17 +114,4 @@ public class DataPersistenceManager : MonoBehaviour
     {
         return gameData != null;
     }
-    /*public Dictionary<string, GameData> GetAllProfilesGameData()
-    {
-        return dataHandler.LoadAllProfiles();
-    }
-    public GameData GetGameData()
-    {
-        return gameData;
-    }
-    public string GetSelectedProfileId()
-    {
-        return selectedProfileId;
-    }*/
-
 }

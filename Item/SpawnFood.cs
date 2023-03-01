@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SpawnFood : MonoBehaviour, IDataPersistence
+public class SpawnFood : MonoBehaviour
 {
     public int amount = 100;
     public GameObject apple;
@@ -50,13 +50,6 @@ public class SpawnFood : MonoBehaviour, IDataPersistence
             }
         }
     }
-    public void LoadData(GameData data)
-    {
 
-    }
-    public void SaveData(ref GameData data)
-    {
-
-    }
 }
 

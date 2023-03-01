@@ -6,14 +6,15 @@ using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayerStatus : MonoBehaviour,IDataPersistence
+public class PlayerStatus : MonoBehaviour
 {
+
     [Header("NameTamTam")]
     public string monsterName;
     public Sprite monsterSprite;
-
     public Image monsterImage;
     public TextMeshPro monsterText;
+    public int playerId;
 
     [Header("PictureStatus")]
     public GameObject zzzUI;
@@ -93,6 +94,7 @@ public class PlayerStatus : MonoBehaviour,IDataPersistence
         instance = this;
         monsterImage = GetComponent<Image>();
         monsterText = GetComponentInChildren<TextMeshPro>();
+        PlayerManager.instance.AddPlayer(this);
     }
 
     private void Start()
@@ -323,7 +325,7 @@ public class PlayerStatus : MonoBehaviour,IDataPersistence
         }
         if (collider.gameObject.layer == LayerMask.NameToLayer("Library"))
         {
-            Library = StartCoroutine(IncreaseLibraryStats()); 
+            Library = StartCoroutine(IncreaseLibraryStats());
         }
 
     }
@@ -360,8 +362,8 @@ public class PlayerStatus : MonoBehaviour,IDataPersistence
         }
 
     }
- 
-        //ห้องพยาบาล
+
+    //ห้องพยาบาล
     private IEnumerator IncreaseNursingStats()
     {
         yield return new WaitForSeconds(2);
@@ -387,7 +389,7 @@ public class PlayerStatus : MonoBehaviour,IDataPersistence
             timepoopoo -= 2;
             IncreaseExperience(10);
             if (strength >= MaxStr) strength = MaxStr;
-            if (intelligent <= MinInt) intelligent = MinInt; 
+            if (intelligent <= MinInt) intelligent = MinInt;
             yield return new WaitForSeconds(1f);
         }
     }
@@ -494,32 +496,8 @@ public class PlayerStatus : MonoBehaviour,IDataPersistence
         Love.SetActive(false);
         stop = false;
     }
-
-    public void LoadData(GameData data)
+    private void OnDestroy()
     {
-        if (data != null)
-        {
-            strength = data.strength;
-            agility = data.agility;
-            dexterity = data.dexterity;
-            intelligent = data.intelligent;
-            currentHp = data.currentHp;
-            currentFood = data.currentFood;
-            position = data.position;
-        }
-    }
-
-    public void SaveData(ref GameData data)
-    {
-        if (data != null)
-        {
-            data.strength = strength;
-            data.agility = agility;
-            data.dexterity = dexterity;
-            data.intelligent = intelligent;
-            data.currentHp = currentHp;
-            data.currentFood = currentFood;
-            data.position = position;
-        }
+        PlayerManager.instance.RemovePlayer(playerId);
     }
 }

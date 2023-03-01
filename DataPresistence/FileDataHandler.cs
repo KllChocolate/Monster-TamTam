@@ -7,11 +7,8 @@ using System.IO;
 public class FileDataHandler
 {
     private string dataDirPath = "";
-
     private string dataFileName = "";
-
     private bool useEncryption = false;
-
     private readonly string encryptionCodeWord = "Kupi";
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption)
@@ -21,9 +18,9 @@ public class FileDataHandler
         this.useEncryption = useEncryption;
     }
 
-    public GameData Load(/*string profileId*/)
+    public GameData Load()
     {
-        string fullPath = Path.Combine(dataDirPath, /*profileId,*/ dataFileName);
+        string fullPath = Path.Combine(dataDirPath,dataFileName);
         GameData loadedData = null;
         if (File.Exists(fullPath))
         {
@@ -51,9 +48,9 @@ public class FileDataHandler
         }
         return loadedData;
     }
-    public void Save(GameData data)//, string profileId) 
+    public void Save(GameData data)
     {
-        string fullPath = Path.Combine(dataDirPath, /*profileId,*/ dataFileName);
+        string fullPath = Path.Combine(dataDirPath, dataFileName);
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
@@ -77,33 +74,7 @@ public class FileDataHandler
             Debug.LogError("เกิดเออเรอร์ตอนพยามจะเซฟเกม" + fullPath + "\n" + e);
         }
     }
-    /*public Dictionary<string,GameData> LoadAllProfiles() 
-    {
-        Dictionary<string, GameData> profileDictionary = new Dictionary<string,GameData>();
-        IEnumerable<DirectoryInfo> dirInfos = new DirectoryInfo(dataDirPath).EnumerateDirectories();
-        foreach (DirectoryInfo dirInfo in dirInfos)
-        {
-            string profileId = dirInfo.Name;
-            string fullPath = Path.Combine(dataDirPath, profileId, dataFileName);
-            if(!File.Exists(fullPath)) 
-            {
-                Debug.LogWarning("ขามไดเร็ททอร์เมื่อโหลดโปรไฟล์ทั้งหมดเนื่องจากข้อมูลไม่ตรงกัน:" + profileId);
-                continue;
-            }
-            GameData profileData = Load(profileId);
-
-            if (profileData != null)
-            {
-                profileDictionary.Add(profileId, profileData);
-            }
-            else
-            {
-                Debug.Log("ลองโหลดโปรไฟล์แต่มีบางอย่างผิดพลาดใน ProfileId:" + profileId);
-            }
-
-        }
-        return profileDictionary;
-    }*/
+    
     private string EncryptDecrypt(string data)
     {
         string modifiedData = "";
