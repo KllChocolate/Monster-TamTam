@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {//‰«È‡æ‘Ë¡‰Õ‡∑Á¡≈ßslot
-
     public static InventoryUI instance;
 
     private void Awake()
@@ -15,6 +14,7 @@ public class InventoryUI : MonoBehaviour
     void Start()
     {
         Inventory.instance.onItemChangedCallback += UpdateUI;
+        
     }
     public void UpdateUI()
     {

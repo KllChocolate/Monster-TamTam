@@ -8,22 +8,27 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject monsterUI;
     public GameObject pauseUI;
     public GameObject inventoryUI;
-    public GameObject player;
+    public GameObject AreYouSureUI;
+    public GameObject str;
+    public GameObject agi;
+    public GameObject dex;
+    public GameObject spawn;
     public Transform spawnPlayer;
     public GameObject shop;
-
-    public Vector2 spawnLocation = new Vector2(-8.27f, 0f);
-
+    private GameObject player;
     private void Start()
     {
-        player = SendPlayer.instance.player;
-        OnSceneLoaded();
+        player = GameObject.FindGameObjectWithTag("Player");
     }
-    void Update()
+    private void Update()
     {
-
+        if (player != null) 
+        { 
+            monsterUI.SetActive(false);
+        }
     }
     public void Pause()
     {
@@ -59,16 +64,36 @@ public class GameManager : MonoBehaviour
     }
     public void openshop()
     {
-        shop.SetActive(true);
+        shop.SetActive(!shop.activeSelf);
     }
     public void closeshop()
     {
         shop.SetActive(false);
 
     }
-    void OnSceneLoaded()
+    public void StrSelect()
     {
-        Instantiate(player, spawnPlayer.position, Quaternion.identity);
-        SendPlayer.instance.player = null;
+        spawn = str;
+        AreYouSureUI.SetActive(true);
     }
+    public void AgiSelect()
+    {
+        spawn = agi;
+        AreYouSureUI.SetActive(true);
+    }
+    public void DexSelect()
+    {
+        spawn = dex;
+        AreYouSureUI.SetActive(true);
+    }
+    public void Yes()
+    {
+        Instantiate(spawn, spawnPlayer.position, Quaternion.identity);
+        monsterUI.SetActive(false);
+    }
+    public void No()
+    {
+        AreYouSureUI.SetActive(false);
+    }
+
 }

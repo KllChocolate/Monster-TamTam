@@ -16,17 +16,19 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
-        {
-            // Get the horizontal movement of the touch
-            float deltaHorizontal = Input.GetTouch(0).deltaPosition.x / Screen.width;
 
-            // Move the camera by the horizontal movement within the defined range
-            currentPosition = transform.position;
-            currentPosition.x = Mathf.Clamp(currentPosition.x - deltaHorizontal * swipeSpeed,
-                                            startPosition.x - swipeRange,
-                                            startPosition.x + swipeRange);
-            transform.position = currentPosition;
-        }
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+            {
+                // Get the horizontal movement of the touch
+                float deltaHorizontal = Input.GetTouch(0).deltaPosition.x / Screen.width;
+
+                // Move the camera by the horizontal movement within the defined range
+                currentPosition = transform.position;
+                currentPosition.x = Mathf.Clamp(currentPosition.x - deltaHorizontal * swipeSpeed,
+                                                startPosition.x - swipeRange,
+                                                startPosition.x + swipeRange);
+                transform.position = currentPosition;
+            }
+        
     }
 }

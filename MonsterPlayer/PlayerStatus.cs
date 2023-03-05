@@ -48,6 +48,7 @@ public class PlayerStatus : MonoBehaviour
     public float stoppingDistance = 0.5f;
     public float timetosick;
     public float chackDistance = 4;
+    public float timeToCry = 10;
 
     [Header("Status")]
     public float strength;
@@ -77,9 +78,17 @@ public class PlayerStatus : MonoBehaviour
     public float attackSpeed;
     public float defense;
 
+    [Header("Sound")]
+    public AudioClip eat;
+    public AudioClip poo;
+    public AudioClip hungy;
+    public AudioClip monsterSound;
+    public AudioClip inTouch;
+    public bool hasPlayedHungySound = false;
 
+    public bool isLoving = false;
     private Animator animator;
-
+    public AudioSource audioSource;
     public static PlayerStatus instance;
     private Transform target;
 
@@ -94,7 +103,9 @@ public class PlayerStatus : MonoBehaviour
         instance = this;
         monsterImage = GetComponent<Image>();
         monsterText = GetComponentInChildren<TextMeshPro>();
-        PlayerManager.instance.AddPlayer(this);
+        //PlayerManager.instance.AddPlayer(this);
+        audioSource = GetComponentInChildren<AudioSource>();
+
     }
 
     private void Start()
@@ -112,10 +123,12 @@ public class PlayerStatus : MonoBehaviour
         animator = GetComponent<Animator>();
         timepoopoo = Random.Range(150, 300);
         timetosick = Random.Range(300, 800);
+        timeToCry -= Time.deltaTime;
 
         currentFood = maxFood;
         maxHp = strength * 10;
         currentHp = maxHp;
+        maxMp = intelligent;
         damage = strength;
         attackSpeed = agility * 0.1f;
         defense = dexterity;
@@ -183,9 +196,10 @@ public class PlayerStatus : MonoBehaviour
         }
         //Hungy
 
-        if (currentFood >= 50)
+        if (currentFood >= maxFood/2)
         {
             stomachUI.SetActive(false);
+            hasPlayedHungySound = false;
         }
         if (currentFood > 0) currentFood -= Time.deltaTime * 0.2f;
         else if (currentFood <= 0)
@@ -195,10 +209,9 @@ public class PlayerStatus : MonoBehaviour
             timetosick -= Time.deltaTime * 10;
         }
 
-        if (currentFood < 30)
+        if (currentFood < maxFood / 3)
         {
             stomachUI.SetActive(true);
-            stop = true;
             foreach (var hitCollider in hitColliders)
             {
                 if (hitCollider.CompareTag("Food"))
@@ -215,17 +228,24 @@ public class PlayerStatus : MonoBehaviour
                         StartCoroutine(Eat());
                         animator.SetBool("Run", false);
                         animator.SetTrigger("Eat");
+                        if (hasPlayedHungySound == false)
+                        {
+                            audioSource.PlayOneShot(hungy);
+                            hasPlayedHungySound = true;
+                        }
                     }
                 }
             }
+            hasPlayedHungySound = false;
+
         }
         //Tired
-        if (currentHp >= 50)
+        if (currentHp >= maxHp / 2)
         {
             zzzUI.SetActive(false);
             animator.SetBool("Sleep", false);
         }
-        if (currentHp <= 10) zzzUI.SetActive(true);
+        if (currentHp <= maxHp / 10) zzzUI.SetActive(true);
         else if (currentHp <= 0)
         {
             animator.SetBool("Sleep", true);
@@ -239,6 +259,7 @@ public class PlayerStatus : MonoBehaviour
             timepoopoo = Random.Range(150, 300);
             Vector3 spawnPosition = transform.position;
             Instantiate(poopoo, spawnPosition, Quaternion.identity);
+            audioSource.PlayOneShot(poo);
         }
 
         //Sick
@@ -283,6 +304,12 @@ public class PlayerStatus : MonoBehaviour
         {
             animator.SetTrigger("Death");
             StartCoroutine(DeathCharacter());
+        }
+        //Cry
+        if (timeToCry == 0)
+        {
+            timeToCry = 10f;
+            audioSource.PlayOneShot(monsterSound);
         }
     }
     private void OnDrawGizmosSelected()
@@ -476,6 +503,7 @@ public class PlayerStatus : MonoBehaviour
     }
     public IEnumerator Eat()
     {
+        audioSource.PlayOneShot(eat);
         yield return new WaitForSeconds(4);
         stop = false;
     }
@@ -489,15 +517,19 @@ public class PlayerStatus : MonoBehaviour
     public void love()
     {
         stop = true;
+        isLoving = true;
         Love.SetActive(true);
+        audioSource.PlayOneShot(inTouch);
     }
     public void stopLove()
     {
+        isLoving = false;
         Love.SetActive(false);
         stop = false;
     }
-    private void OnDestroy()
+    /*private void OnDestroy()
     {
         PlayerManager.instance.RemovePlayer(playerId);
-    }
+    }*/
+
 }

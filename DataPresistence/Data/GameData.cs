@@ -6,5 +6,5 @@ using UnityEngine.Playables;
 [System.Serializable]
 public class GameData
 {
-   
+    public MonsterSelectionData monsterSelectionData;
 }

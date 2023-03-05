@@ -12,6 +12,9 @@ public class DataPersistenceManager : MonoBehaviour
     [Header("File Storage Config")]
     [SerializeField] private string fileName;
     [SerializeField] private bool useEncryption;
+    [Header("Monster Selection")]
+    [SerializeField] private GameObject monsterSelection;
+    private MonsterSelectionData monsterSelectionData;
 
     private GameData gameData;
     private List<IDataPersistence> dataPersistenceObjects;
@@ -21,6 +24,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void Awake()
     {
+
         if (instance != null)
         {
             Debug.Log("เจอมากกว่า 1 Data Persistance Manager ในฉาก");
@@ -49,6 +53,7 @@ public class DataPersistenceManager : MonoBehaviour
     private void Start()
     {
         dataPersistenceObjects = FindAllDataPersistenceObjects();
+        monsterSelection = GameObject.Find("Monster Selection");
         LoadGame();
     }
 
@@ -102,6 +107,10 @@ public class DataPersistenceManager : MonoBehaviour
     {
         SaveGame();
     }
+    private void OnApplicationQuit()
+    {
+        SaveGame();
+    }
 
     private List<IDataPersistence> FindAllDataPersistenceObjects()
     {
@@ -114,4 +123,29 @@ public class DataPersistenceManager : MonoBehaviour
     {
         return gameData != null;
     }
+    /*public void LoadData(GameData data)
+    {
+        if (data is GameData gameData)
+        {
+            if (gameData.monsterSelectionData != null)
+            {
+                monsterSelectionData = gameData.monsterSelectionData;
+                if (monsterSelection != null)
+                {
+                    monsterSelection.SetActive(monsterSelectionData.isMonsterSelectionActive);
+                    monsterSelection.transform.position = monsterSelectionData.monsterSelectionPosition;
+                }
+            }
+        }
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        if (monsterSelection != null)
+        {
+            monsterSelectionData.isMonsterSelectionActive = monsterSelection.activeSelf;
+            monsterSelectionData.monsterSelectionPosition = monsterSelection.transform.position;
+            data.monsterSelectionData = monsterSelectionData;
+        }
+    }*/
 }

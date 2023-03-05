@@ -6,14 +6,12 @@ using UnityEngine.UI;
 public class HandJob : MonoBehaviour
 {
     private Toggle toggle;
-    private GameObject player;
     public Texture2D customCursor;
     private Vector2 hotspot;
 
     public void Start()
     {
         toggle = GetComponent<Toggle>();
-        player = GameObject.FindGameObjectWithTag("Player");
         hotspot = new Vector2(customCursor.width / 2, customCursor.height / 2);
 
     }
@@ -22,25 +20,41 @@ public class HandJob : MonoBehaviour
         if (toggle.isOn)
         {
             Cursor.SetCursor(customCursor, hotspot, CursorMode.Auto);
-            if (player != null)
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            foreach (GameObject player in players)
             {
-                if (Input.GetMouseButtonDown(0))
+                Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Collider2D collider2d = player.GetComponent<Collider2D>();
+                float distance = Vector2.Distance(mouseWorldPosition, collider2d.bounds.center); // คำนวณระยะห่างระหว่างเมาส์และ player
+                if (collider2d != null && distance <= collider2d.bounds.extents.magnitude*2) // เช็คเมื่อเมาส์อยู่ในพื้นที่ของ player
                 {
-                    Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    Collider2D collider2d = player.GetComponent<Collider2D>();
-                    if (collider2d != null && collider2d.OverlapPoint(mouseWorldPosition))
+                    PlayerStatus playerStatus = player.GetComponent<PlayerStatus>();
+                    if (player != null)
                     {
-                        PlayerStatus.instance.love();
-                        player.GetComponent<DragObject>().enabled = false;
+                        if (Input.GetMouseButtonDown(0))
+                        {
+                            playerStatus.love();
+                            player.GetComponent<DragObject>().enabled = false;
+                        }
+                        else if (Input.GetMouseButtonUp(0))
+                        {
+                            playerStatus.stopLove();
+                            player.GetComponent<DragObject>().enabled = true;
+                        }
                     }
                 }
-                else if (Input.GetMouseButtonUp(0))
+                else // เมื่อเมาส์ออกจากพื้นที่ของ player
                 {
-                    PlayerStatus.instance.stopLove();
-                    player.GetComponent<DragObject>().enabled = true;
+                    PlayerStatus playerStatus = player.GetComponent<PlayerStatus>();
+                    if (playerStatus.isLoving) // เช็คเมื่อ player กำลังถูกลุบ
+                    {
+                        playerStatus.stopLove();
+                        player.GetComponent<DragObject>().enabled = true;
+                    }
                 }
             }
         }
         else Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 }
+

@@ -27,6 +27,10 @@ public class SceneLoader : MonoBehaviour
 
             players[i].transform.rotation = Quaternion.identity;
             players[i].transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
+            GameObject myObject = GameObject.FindGameObjectWithTag("Player");
+            Scene myScene = SceneManager.GetActiveScene();
+            SceneManager.MoveGameObjectToScene(myObject, myScene);
         }
     }
 }

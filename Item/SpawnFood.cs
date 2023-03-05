@@ -14,7 +14,8 @@ public class SpawnFood : MonoBehaviour
     private Toggle toggle;
     public LayerMask spawnLayerMask;
     public PassData money;
-
+    public AudioClip dropSound;
+    public AudioSource audioSource;
 
     public static SpawnFood instance;
 
@@ -24,6 +25,7 @@ public class SpawnFood : MonoBehaviour
     }
     public void Start()
     {
+        audioSource = GetComponentInChildren<AudioSource>();
         toggle = GetComponent<Toggle>();
         food = apple;
     }
@@ -44,6 +46,7 @@ public class SpawnFood : MonoBehaviour
                         {
                             Instantiate(food, spawnPosition, Quaternion.identity);
                             money.Value -= amount;
+                            audioSource.PlayOneShot(dropSound);
                         }
                     }
                 }

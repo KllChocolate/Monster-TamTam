@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,9 +8,15 @@ public class DragObject : MonoBehaviour
 {
     private Vector2 mousePosition;
     private Rigidbody2D rigidbody2d;
-    private bool isBeingClicked = false;
+    public bool isBeingClicked = false;
     private GameObject player;
 
+    public static DragObject instance;
+
+    public void Awake()
+    {
+        instance = this;
+    }
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");

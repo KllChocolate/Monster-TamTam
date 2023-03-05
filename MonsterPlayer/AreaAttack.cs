@@ -7,11 +7,12 @@ public class AreaAttack : MonoBehaviour
     public float damage;
     public float knockback = 1f;
     public GameObject fxAttack;
-
+    public AudioClip attackClip;
+    public AudioSource audioSource;
 
     void Start()
     {
-
+        audioSource = GetComponentInChildren<AudioSource>();
     }
 
     void Update()
@@ -22,6 +23,7 @@ public class AreaAttack : MonoBehaviour
     {
         if (collider.GetComponent<EnemyStatus>() != null)
         {
+            audioSource.PlayOneShot(attackClip);
             Instantiate(fxAttack, transform.position, Quaternion.identity);
             //Vector2 direction = (collider.transform.position - transform.position).normalized;
             //collider.GetComponent<Rigidbody2D>().velocity = direction * knockback;

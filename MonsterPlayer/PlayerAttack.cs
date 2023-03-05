@@ -11,8 +11,9 @@ public class PlayerAttack : MonoBehaviour
     [Header("BasicStatus")]
     public float maxHp;
     public float currentHp;
-    public float mp;
-    public float useMp;
+    public float maxMp;
+    public float currentMp;
+    public float useMp = 5;
     public bool stop = false;
     public float walkTime = 1.0f;
     private float walkTimer = 0.0f;
@@ -27,7 +28,7 @@ public class PlayerAttack : MonoBehaviour
     public float attackSpeed;
     public float defense;
     public float findRange = 20;
-    public float speed = 3;
+    public float speed = 4;
     public float cooldown = 2;
     public float lastAttackTime = -Mathf.Infinity;
     public float lastFXTime = -Mathf.Infinity;
@@ -42,6 +43,11 @@ public class PlayerAttack : MonoBehaviour
     public float skillTime;
     public float rangeskill = 5;
 
+    public AudioClip hitSound;
+    public AudioClip deathSound;
+    public AudioClip skillSound;
+
+    public AudioSource audioSource;
     public static PlayerAttack instance;
 
     private Animator animator;
@@ -51,6 +57,7 @@ public class PlayerAttack : MonoBehaviour
     }
     void Start()
     {
+        audioSource = GetComponentInChildren<AudioSource>();
         AreaAttack = gameObject.transform.Find("AreaAttack").gameObject;
         animator = GetComponent<Animator>();
         StartCoroutine(LoadStatus());
@@ -155,13 +162,14 @@ public class PlayerAttack : MonoBehaviour
                 
             }
             //й║те
-            if (skillTime <= 0 && mp >= 5 && closestDistance <= rangeskill)
+            if (skillTime <= 0 && currentMp >= useMp && closestDistance <= rangeskill)
             {
+                audioSource.PlayOneShot(skillSound);
                 Instantiate(beforeskill, transform.position, Quaternion.identity);
                 animator.SetTrigger("Skill");
                 StartCoroutine(UseSkill());
                 skillTime = Random.Range(6, 11);
-                mp -= useMp;
+                currentMp -= useMp;
             }
             else
             {
@@ -204,10 +212,13 @@ public class PlayerAttack : MonoBehaviour
             gameObject.tag = "Dead";
             death = true;
             GetComponent<PlayerAttack>().enabled = false;
+            audioSource.PlayOneShot(deathSound);
         }
         else
         {
             animator.SetTrigger("Hit");
+            audioSource.PlayOneShot(hitSound);
+            
         }
 
     }
@@ -227,7 +238,8 @@ public class PlayerAttack : MonoBehaviour
         currentHp = PlayerStatus.instance.currentHp;
         attackSpeed = PlayerStatus.instance.attackSpeed;
         defense = PlayerStatus.instance.defense;
-        mp = PlayerStatus.instance.maxMp;
+        maxMp = PlayerStatus.instance.maxMp;
+        currentMp = PlayerStatus.instance.maxMp;
 
     }
     private IEnumerator UseSkill()

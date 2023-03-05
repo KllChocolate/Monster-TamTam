@@ -10,9 +10,10 @@ public class EnemyStatus : MonoBehaviour
     public float currentHp;
     public float damage;
     public float defense;
-    public float mp;
+    public float maxMp = 10;
+    public float currentMp;
     public float useMp;
-
+    [Header("Information")]
     public float speed = 3;
     public float stoppingDistance;
     public float cooldown = 5;
@@ -34,10 +35,17 @@ public class EnemyStatus : MonoBehaviour
     public float waitTime = 0.3f;
     private float waitTimer = 0.0f;
     private Vector2 moveDirection = Vector2.right;
+    [Header("Sound")]
+    private AudioSource audioSource;
+    public AudioClip hitSound;
+    public AudioClip deathSound;
+    public AudioClip skillSound;
+
 
     public static EnemyStatus instance;
 
     private Animator animator;
+
 
     private void Awake()
     {
@@ -48,8 +56,9 @@ public class EnemyStatus : MonoBehaviour
         AreaAttack.SetActive(false);
         animator = GetComponent<Animator>();
         currentHp = maxHp;
+        currentMp = maxMp;
         skillTime = Random.Range(10, 15);
-        mp = Random.Range(5, 15);
+        audioSource = GetComponentInChildren<AudioSource>();
     }
     void Update()
     {
@@ -149,13 +158,14 @@ public class EnemyStatus : MonoBehaviour
 
             }
             //й║те
-            if (skillTime <= 0 && mp >= 5 && closestDistance <= rangeskill)
+            if (skillTime <= 0 && currentMp >= useMp && closestDistance <= rangeskill)
             {
+                audioSource.PlayOneShot(skillSound);
                 Instantiate(beforeskill, transform.position, Quaternion.identity);
                 animator.SetTrigger("Skill");
                 StartCoroutine(UseSkill());
                 skillTime = Random.Range(6, 11);
-                mp -= useMp;
+                currentMp -= useMp;
             }
             else
             {
@@ -206,6 +216,7 @@ public class EnemyStatus : MonoBehaviour
         currentHp -= finalDamage;
         if (currentHp <= 0)
         {
+            audioSource.PlayOneShot(deathSound);
             readyAttack = false;
             animator.SetBool("Death", true);
             animator.SetBool("Run", false);
@@ -214,6 +225,7 @@ public class EnemyStatus : MonoBehaviour
         }
         else
         {
+            audioSource.PlayOneShot(hitSound);
             animator.SetTrigger("Hit");
         }
 
@@ -249,4 +261,5 @@ public class EnemyStatus : MonoBehaviour
         Gizmos.color = Color.black;
         Gizmos.DrawWireSphere(transform.position, rangeskill);
     }
+
 }

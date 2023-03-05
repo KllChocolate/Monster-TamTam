@@ -10,24 +10,22 @@ public class StartManu : MonoBehaviour
     [SerializeField] private PassData money;
     [SerializeField] private PassData energy;
     [SerializeField] private GameObject continueGameButton;
-    [SerializeField] private GameObject mainManu;
-    [SerializeField] private GameObject loadGame;
 
     private void Start()
     { 
-        if (!DataPersistenceManager.instance.HasGameData())
+        /*if (!DataPersistenceManager.instance.HasGameData())
         {
             continueGameButton.SetActive(false);
         }
         if (DataPersistenceManager.instance.HasGameData())
         {
             continueGameButton.SetActive(true);
-        }
+        }*/
 
     }
     public void PlayGame()
     {
-        DataPersistenceManager.instance.NewGame();
+        //DataPersistenceManager.instance.NewGame();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         money.Value = 10000;
         energy.Value = 100;
@@ -35,16 +33,6 @@ public class StartManu : MonoBehaviour
     public void ContinueGame()
     {
         SceneManager.LoadScene("Monster TamTam Game");
-    }
-    public void LoadGame()
-    {
-        loadGame.SetActive(true);
-        mainManu.SetActive(false);
-    }
-    public void back()
-    {
-        loadGame.SetActive(false);
-        mainManu.SetActive(true);
     }
     public void Option()
     {

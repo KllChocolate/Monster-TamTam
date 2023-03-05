@@ -29,6 +29,9 @@ public class Shop : MonoBehaviour
     public int StrawberryValue;
     public Text strawberryText;
     public Item strawberry;
+    public int NetValue;
+    public Text netText;
+    public Item net;
 
     public PassData money;
 
@@ -42,6 +45,7 @@ public class Shop : MonoBehaviour
         orangeText.text = OrangeValue.ToString();
         pineappleText.text = PineappleValue.ToString();
         strawberryText.text = StrawberryValue.ToString();
+        netText.text = NetValue.ToString();
     }
 
 
@@ -151,6 +155,7 @@ public class Shop : MonoBehaviour
             StartCoroutine(NotEnoughMoney());
         }
     }
+
     public IEnumerator NotEnoughMoney()
     {
         yield return new WaitForSeconds(0.5f);

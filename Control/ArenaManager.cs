@@ -12,7 +12,10 @@ public class ArenaManager : MonoBehaviour
     public float timer = 3;
     public float time = 0;
     public PassData _money;
+    public AudioClip victorySound;
+    public AudioClip loseSound;
 
+    public AudioSource audioSource;
     public static ArenaManager instance;
 
     public void Awake()
@@ -22,7 +25,8 @@ public class ArenaManager : MonoBehaviour
 
     private void Start()
     {
-        time += Time.deltaTime;    
+        time += Time.deltaTime;
+        audioSource = GetComponentInChildren<AudioSource>();
     }
     void Update()
     {
@@ -41,25 +45,24 @@ public class ArenaManager : MonoBehaviour
 
         if (players.Length == 0)
         {
+            audioSource.PlayOneShot(loseSound);
             loseUI.SetActive(true);
-            StartCoroutine(comeback(players));
+            StartCoroutine(comeback());
         }
 
         if (enemies.Length == 0)
         {
+            audioSource.PlayOneShot(victorySound);
             winUI.SetActive(true);
-            StartCoroutine(comeback(players));
+            StartCoroutine(comeback());
             _money.Value += money;
         }
     }
 
-    IEnumerator comeback(GameObject[] players)
+    IEnumerator comeback()
     {
         yield return new WaitForSeconds(2);
         SceneManager.LoadScene("Monster TamTam Game");
-        Destroy(players[0]);
-        Destroy(players[1]);
-        Destroy(players[2]);
     }
 
 }
