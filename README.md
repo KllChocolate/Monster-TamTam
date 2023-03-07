@@ -1,0 +1,2 @@
+# Monster-TamTam -2D game that combines Casual and Idle genres on mobile platform.
+This is a 2D game that blends the Tamago and Idle game genres.The game features a system for feeding, medicating, and cleaning up after monsters, as well as a shop. The goal is to train our monsters to become stronger so that they can battle against other players. There is an automated attack and skill usage system.
