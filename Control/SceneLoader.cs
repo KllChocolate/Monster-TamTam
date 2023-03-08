@@ -22,15 +22,16 @@ public class SceneLoader : MonoBehaviour
                 players[i].transform.position = SpawnPlayer2.position;
             else if (i == 2)
                 players[i].transform.position = SpawnPlayer3.position;
-            else
-                Destroy(players[i]);
 
             players[i].transform.rotation = Quaternion.identity;
             players[i].transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-
-            GameObject myObject = GameObject.FindGameObjectWithTag("Player");
+            
+        }
+        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in allPlayers)
+        {
             Scene myScene = SceneManager.GetActiveScene();
-            SceneManager.MoveGameObjectToScene(myObject, myScene);
+            SceneManager.MoveGameObjectToScene(player, myScene);
         }
     }
 }

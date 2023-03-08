@@ -27,7 +27,7 @@ public class SpawnPlayerThree : MonoBehaviour
 
     public void Medium()
     {
-        nameScene = "Monster TamTam Arena ThreeMedium";
+        nameScene = "Monster TamTam Arena ThreeMiddlm";
         energy = 20;
     }
 

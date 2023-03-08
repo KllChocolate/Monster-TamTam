@@ -94,22 +94,19 @@ public class EnemyStatus : MonoBehaviour
                 waitTimer = 0.0f;
             }
         }
-        //ตั้งค่าค้นหาศัตรู
         GameObject[] hitEnemies = GameObject.FindGameObjectsWithTag("Player");
         List<GameObject> enemiesInRange = new List<GameObject>();
-        //หาแล้วจัดเข้ากลุ่ม
         foreach (GameObject enemy in hitEnemies)
         {
             float distance = Vector2.Distance(transform.position, enemy.transform.position);
-            //กำหนดระยะค้นหา
             if (distance <= findRange)
             {
-                enemiesInRange.Add(enemy);//เพิ่มเข้ากลุ่ม
+                enemiesInRange.Add(enemy);
             }
         }
-        if (enemiesInRange.Count > 0)//ถ้ามากกว่า 0 ตัว
+        if (enemiesInRange.Count > 0)
         {
-            GameObject closestEnemy = enemiesInRange[0];//ตัวที่ใกล้สุด
+            GameObject closestEnemy = enemiesInRange[0];
             Vector3 direction = (closestEnemy.transform.position - transform.position).normalized;
             if (direction.x > 0)
             {
@@ -132,11 +129,10 @@ public class EnemyStatus : MonoBehaviour
                     }
                 }
             }
-            if (Time.time - lastAttackTime > cooldown && readyAttack) //พร้อมโจมตี
+            if (Time.time - lastAttackTime > cooldown && readyAttack)
             {
                 if (closestDistance > stoppingDistance)
                 {
-                    // Move towards the closest enemy.
                     transform.position = Vector3.MoveTowards(transform.position, closestEnemy.transform.position, speed * Time.deltaTime);
                     animator.SetBool("Run", true);
                 }
@@ -174,14 +170,14 @@ public class EnemyStatus : MonoBehaviour
         }
         if (IsAllEnemiesDead())
         {
-            isAllEnemiesDead = true; // กำหนดว่าศัตรูตายหมดแล้ว
+            isAllEnemiesDead = true;
         }
 
     }
 
     private void Attack()
     {
-        //animator.SetTrigger("Attack");
+
         AreaAttack.SetActive(true);
         lastAttackTime = Time.time;
         StartCoroutine(AttackCooldown());
@@ -192,7 +188,6 @@ public class EnemyStatus : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         isAttacking = false;
         AreaAttack.SetActive(false);
-        yield return new WaitForSeconds(cooldown);
         readyAttack = true;
 
     }

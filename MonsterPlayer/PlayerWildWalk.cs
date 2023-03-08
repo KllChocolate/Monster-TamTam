@@ -14,7 +14,6 @@ public class PlayerWildWalk : MonoBehaviour
     private float waitTimer = 0;
     public float findRange = 20;
     public bool incatch = false;
-    public GameObject Nick;
 
     private Animator animator;
 
@@ -75,8 +74,8 @@ public class PlayerWildWalk : MonoBehaviour
         }
         if (netInRange.Count > 0)//ถ้ามากกว่า 0 ตัว
         {
-            if(incatch == false)
-            { 
+            if (incatch == false)
+            {
                 speed = 6;
                 waitTime = 0;
                 walkTime = 10;
@@ -102,8 +101,12 @@ public class PlayerWildWalk : MonoBehaviour
 
     private IEnumerator Destory()
     {
-        yield return new WaitForSeconds(6f);
-        Destroy(gameObject);
+        yield return new WaitForSeconds(1f);
+        if (incatch == false)
+        {
+            yield return new WaitForSeconds(6f);
+            Destroy(gameObject);
+        }
     }
     public void StopWalking()
     {

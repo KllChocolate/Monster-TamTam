@@ -14,7 +14,6 @@ public class ToggleController : MonoBehaviour
     }
     public void OnEnable()
     {
-        // ตั้งค่า isOn ของ Toggle ให้ตรงกับจำนวน player ทั้งหมดในฉาก
         int numPlayers = GameObject.FindGameObjectsWithTag("Player").Length;
         for (int i = 0; i < toggleButtons.Count; i++)
         {
@@ -24,7 +23,7 @@ public class ToggleController : MonoBehaviour
 
     public void UpdateToggles()
     {
-        int count = 0; // ตัวนับจำนวน toggle ที่เปิดอยู่
+        int count = 0;
         foreach (Toggle button in toggleButtons)
         {
             if (button.isOn)
@@ -32,7 +31,7 @@ public class ToggleController : MonoBehaviour
                 count++;
             }
         }
-        if (count > 3) // ตรวจสอบว่ามี toggle เปิดอยู่มากกว่า 3 หรือไม่
+        if (count > 3)
         {
             foreach (Toggle button in toggleButtons)
             {

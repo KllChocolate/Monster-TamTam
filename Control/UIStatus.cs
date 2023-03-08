@@ -53,8 +53,8 @@ public class UIStatus : MonoBehaviour
             {
                 Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Collider2D collider2d = player.GetComponent<Collider2D>();
-                float distance = Vector2.Distance(mouseWorldPosition, collider2d.bounds.center); // คำนวณระยะห่างระหว่างเมาส์และ player
-                if (collider2d != null && distance <= collider2d.bounds.extents.magnitude) // เช็คเมื่อเมาส์อยู่ในพื้นที่ของ player
+                float distance = Vector2.Distance(mouseWorldPosition, collider2d.bounds.center);
+                if (collider2d != null && distance <= collider2d.bounds.extents.magnitude) 
                 {
                     if (player != null)
                     {
