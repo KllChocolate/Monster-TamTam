@@ -47,7 +47,7 @@ public class PlayerAttack : MonoBehaviour
     public AudioClip deathSound;
     public AudioClip skillSound;
 
-    public AudioSource audioSource;
+    private AudioSource audioSource;
     public static PlayerAttack instance;
 
     private Animator animator;
